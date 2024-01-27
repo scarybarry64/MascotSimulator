@@ -2,13 +2,33 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
-    [SerializeField] float _speed;
-    
+    private const float SPEED = 8f;
+
+    private int _exhaustion;
+    public int Exhaustion
+    {
+        get
+        {
+            return _exhaustion;
+        }
+
+        set
+        {
+            _exhaustion = Mathf.Clamp(value, 0, 100);
+        }
+    }
+
+
+
+
+
     private PlayerInput _input;
     private Rigidbody2D _body;
+    [SerializeField] private Slider _slider;
 
     private void Awake()
     {
@@ -16,11 +36,12 @@ public class Player : MonoBehaviour
         _body = GetComponent<Rigidbody2D>();
     }
 
-    private void OnEnable()
+    private void Start()
     {
         _input.Enable();
         _input.Player.Move.performed += OnMovementButtonPressed;
         _input.Player.Move.canceled += OnMovementButtonCancelled;
+        Kid.onKidAttacking += OnKidAttacking;
     }
 
     private void OnDisable()
@@ -28,12 +49,27 @@ public class Player : MonoBehaviour
         _input.Player.Move.performed -= OnMovementButtonPressed;
         _input.Player.Move.canceled -= OnMovementButtonCancelled;
         _input.Disable();
+        Kid.onKidAttacking -= OnKidAttacking;
     }
 
+    private void Update()
+    {
+        _slider.value = Exhaustion;
+    }
+
+
+    private void OnKidAttacking(int damage)
+    {
+        Exhaustion += damage;
+    }
+
+
+
+    #region Input
     // Called whenever the player presses the movement buttons (WASD / arrows)
     private void OnMovementButtonPressed(InputAction.CallbackContext data)
     {
-        _body.velocity = data.ReadValue<Vector2>() * _speed;
+        _body.velocity = data.ReadValue<Vector2>() * SPEED;
     }
 
     // Called whenever the player STOPS pressing the movement buttons (WASD / arrows)
@@ -41,4 +77,5 @@ public class Player : MonoBehaviour
     {
         _body.velocity = Vector2.zero;
     }
+    #endregion
 }
