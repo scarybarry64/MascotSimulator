@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Floor
   - ExhaustionBar
+  - EscapeButton
   layers:
   - Default
   - TransparentFX

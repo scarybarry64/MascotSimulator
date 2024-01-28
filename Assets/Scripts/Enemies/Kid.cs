@@ -4,48 +4,65 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
+public enum KidState
+{
+    IDLE,
+    WANDERING,
+    SEARCHING,
+    HUNTING,
+    STUNNED
+}
+
+public enum KidType
+{
+    BASE,
+    PRINCESS,
+    WEIRD,
+    GOTH,
+    SUGAR,
+    GROSS
+}
+
 public class Kid : MonoBehaviour
 {
-    [SerializeField] private float RunSpeed = 3f;
-    [SerializeField] private float AnimationSpeed = 1f;
-
     // Settings
-    private const int BASE_HUG_DAMAGE = 25;
-    private const int BASE_HUG_STRENGTH = 5;
-    private const float TIME_BETWEEN_HUGS = 1f;
-    private const float STUN_DURATION = 2f;
-    private const float BASE_IDLE_DURATION = 5f;
+    [SerializeField] protected float RunSpeed = 3f;
+    [SerializeField] protected float AnimationSpeed = 1f;
+    protected int HugDamage = BASE_HUG_DAMAGE;
+    protected float IdleDuration = BASE_IDLE_DURATION;
+    protected KidType type = KidType.BASE;
+
+
+    public const int BASE_HUG_DAMAGE = 25;
+    public const int BASE_HUG_STRENGTH = 5;
+    public const float TIME_BETWEEN_HUGS = 1f;
+    public const float STUN_DURATION = 2f;
+    public const float BASE_IDLE_DURATION = 5f;
+
+    public static event Action<KidType, int, int> OnKidAttacking;
+
+    protected KidState _state;
+    protected NavMeshAgent _agent;
+    protected SpriteRenderer _renderer;
+    protected Animator _animator;
+    protected Vector2 _positionPlayerLastSeen;
+    protected float _timeSinceLastAttack;
+    protected SpriteRenderer _floor; // for wander behavior
+    protected LayerMask _maskBlockable; // bockables prevent line of sight with player
+
+    protected Coroutine _coroutineIdle;
+    protected Coroutine _coroutineWander;
+    protected Coroutine _coroutineSearch;
+
     private const string PLAYER_TAG = "Player";
 
-    public static event Action<int, int> OnKidAttacking;
-
-    private enum KidState
-    {
-        IDLE,
-        WANDERING,
-        SEARCHING,
-        HUNTING,
-        STUNNED
-    }
-
-    private KidState _state;
-    private NavMeshAgent _agent;
-    private SpriteRenderer _renderer;
-    private Animator _animator;
-    private Vector2 _positionPlayerLastSeen;
-    private float _timeSinceLastAttack;
-    private SpriteRenderer _floor; // for wander behavior
-    private LayerMask _maskBlockable; // bockables prevent line of sight with player
-
-    private Coroutine _coroutineIdle;
-    private Coroutine _coroutineWander;
-    private Coroutine _coroutineSearch;
-
-    private void Start()
+    protected virtual void Start()
     {
         _agent = GetComponent<NavMeshAgent>();
         _renderer = GetComponent<SpriteRenderer>();
         _animator = GetComponent<Animator>();
+        _floor = GameObject.FindGameObjectWithTag("Floor").GetComponent<SpriteRenderer>(); // find floor here, might be bad for performance (should use singleton game manager instead)
+        _maskBlockable = LayerMask.GetMask("Blockable");
 
         _agent.speed = RunSpeed;
         _agent.updateRotation = false;
@@ -53,16 +70,11 @@ public class Kid : MonoBehaviour
         _timeSinceLastAttack = Time.time;
         _animator.speed = AnimationSpeed;
 
-        // find floor here, might be bad for performance (should use singleton game manager instead)
-        _floor = GameObject.FindGameObjectWithTag("Floor").GetComponent<SpriteRenderer>();
-
-
-        _maskBlockable = LayerMask.GetMask("Blockable");
-
+        Player.OnPlayerEscapingHug += OnPlayerEscapingHug;
 
         SetState(KidState.IDLE);
 
-        Player.OnPlayerEscapingHug += OnPlayerEscapingHug;
+        Debug.Log("Calling Start for: " + gameObject.name);
     }
 
     private void OnDisable()
@@ -75,11 +87,11 @@ public class Kid : MonoBehaviour
         HandleSpriteFlipping();
     }
 
-    private void SetState(KidState state)
+    protected void SetState(KidState state)
     {
         _state = state;
 
-        //Debug.Log("Kid is: " + state.ToString());
+        //Debug.Log("Kid" + gameObject.name + " is: " + state.ToString());
 
         switch (state)
         {
@@ -116,7 +128,7 @@ public class Kid : MonoBehaviour
 
     #region Collision
 
-    private void OnTriggerStay2D(Collider2D collider)
+    protected void OnTriggerStay2D(Collider2D collider)
     {
         if (collider.CompareTag(PLAYER_TAG))
         {
@@ -157,7 +169,7 @@ public class Kid : MonoBehaviour
 
     protected virtual void Attack()
     {
-        OnKidAttacking?.Invoke(BASE_HUG_DAMAGE, UnityEngine.Random.Range(BASE_HUG_STRENGTH - 3, BASE_HUG_STRENGTH + 3));
+        OnKidAttacking?.Invoke(type, HugDamage, UnityEngine.Random.Range(BASE_HUG_STRENGTH - 3, BASE_HUG_STRENGTH + 3));
         _timeSinceLastAttack = Time.time;
     }
 
@@ -213,7 +225,7 @@ public class Kid : MonoBehaviour
         _agent.isStopped = true;
         _animator.SetBool("isMoving", false);
 
-        yield return new WaitForSecondsRealtime(UnityEngine.Random.Range(BASE_IDLE_DURATION - 3, BASE_IDLE_DURATION + 3));
+        yield return new WaitForSecondsRealtime(UnityEngine.Random.Range(IdleDuration - 3, IdleDuration + 3));
 
         SetState(KidState.WANDERING);
     }
