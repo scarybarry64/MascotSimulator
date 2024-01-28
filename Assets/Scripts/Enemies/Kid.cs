@@ -7,14 +7,14 @@ using System;
 
 public class Kid : MonoBehaviour
 {
-    public static event Action<int> onKidAttacking;
+    public static event Action<int, int> onKidAttacking;
     
-    protected enum State
+    protected enum KidState
     {
         IDLE,
         SEARCHING,
         HUNTING,
-        ATTACKING
+        STUNNED
     }
 
 
@@ -24,45 +24,86 @@ public class Kid : MonoBehaviour
 
 
 
-    private const float SPEED = 3f;
-    private const int DAMAGE = 25;
-    private const float TIME_BETWEEN_ATTACKS = 1f;
+    private const float RUN_SPEED = 3f;
+    private const int HUG_DAMAGE = 25;
+    private const int BASE_HUG_STRENGTH = 5;
+    private const float TIME_BETWEEN_HUGS = 1f;
+    private const float STUN_DURATION = 2f;
 
     private const string PLAYER_TAG = "Player";
 
 
 
-    protected State _state;
-    protected NavMeshAgent _agent;
-
+    private KidState _state;
+    private NavMeshAgent _agent;
+    private SpriteRenderer _spriteRenderer;
 
 
     private Vector2 _positionPlayerLastSeen;
     private float timeSinceLastAttack;
 
 
-
-    // event is enemy attacks player
-    // OnKidAttacking
-
-    // kid invokes this in their attack function
-    // player subscribes their recieve function to this
-
-
     private void Start()
     {
         _agent = GetComponent<NavMeshAgent>();
+        _spriteRenderer = GetComponent<SpriteRenderer>();
+
+
         _agent.updateRotation = false;
         _agent.updateUpAxis = false;
 
-        _agent.speed = SPEED;
+        _agent.speed = RUN_SPEED;
 
 
         timeSinceLastAttack = Time.time;
 
 
-        SetState(State.IDLE);
+        SetState(KidState.IDLE);
     }
+
+
+    private void OnEnable()
+    {
+        Player.onPlayerEscapingHug += OnPlayerEscapingHug;
+    }
+
+
+    private void OnDisable()
+    {
+        Player.onPlayerEscapingHug -= OnPlayerEscapingHug;
+    }
+
+
+    private void SetState(KidState state)
+    {
+        _state = state;
+
+        Debug.Log("Kid is: " + state.ToString());
+
+        switch (state)
+        {
+            case KidState.IDLE:
+
+                _agent.isStopped = true;
+                return;
+
+            case KidState.HUNTING:
+            case KidState.SEARCHING:
+
+                _agent.SetDestination(_positionPlayerLastSeen);
+                _agent.isStopped = false;
+                return;
+
+            case KidState.STUNNED:
+
+                StartCoroutine(StunnedCoroutine());
+                return;
+        }
+    }
+
+
+
+    #region Collision
 
     private void OnTriggerStay2D(Collider2D collider)
     {
@@ -70,18 +111,21 @@ public class Kid : MonoBehaviour
         {
             _positionPlayerLastSeen = collider.transform.position;
 
-            if (IsClose(collider) && !HasAttackedRecently())
+            if (_state != KidState.STUNNED)
             {
-                Attack();
-            }
-            
-            if (HasLineOfSight(collider))
-            {
-                SetState(State.HUNTING);
-            }
-            else if (_state == State.HUNTING)
-            {
-                SetState(State.SEARCHING);
+                if (IsClose(collider) && !HasAttackedRecently())
+                {
+                    Attack();
+                }
+
+                if (HasLineOfSight(collider))
+                {
+                    SetState(KidState.HUNTING);
+                }
+                else if (_state == KidState.HUNTING)
+                {
+                    SetState(KidState.SEARCHING);
+                }
             }
         }
     }
@@ -91,47 +135,30 @@ public class Kid : MonoBehaviour
     {
         if (collider.CompareTag(PLAYER_TAG))
         {
-            SetState(State.IDLE);
+            SetState(KidState.IDLE);
         }
     }
 
+    #endregion
 
-    private void SetState(State state)
-    {
-        _state = state;
 
-        Debug.Log("Kid is: " + state.ToString());
-
-        switch (state)
-        {
-            case State.IDLE:
-
-                _agent.isStopped = true;
-                return;
-
-            case State.HUNTING:
-            case State.SEARCHING:
-
-                _agent.SetDestination(_positionPlayerLastSeen);
-                _agent.isStopped = false;
-                return;
-        }
-    }
+    #region Actions
 
     protected virtual void Attack()
     {
-        onKidAttacking?.Invoke(DAMAGE);
+        onKidAttacking?.Invoke(HUG_DAMAGE, UnityEngine.Random.Range(BASE_HUG_STRENGTH - 3, BASE_HUG_STRENGTH + 3));
         timeSinceLastAttack = Time.time;
     }
 
+    #endregion
 
-    // patrol behavior
 
-
+    #region Bool Checks
 
     private bool HasLineOfSight(Collider2D colliderPlayer)
     {
-        return !Physics2D.CircleCast(transform.position, 0.5f, colliderPlayer.transform.position - transform.position, 100f, mask).collider;
+        return !Physics2D.CircleCast(transform.position, 0.5f, colliderPlayer.transform.position - transform.position,
+            Vector2.Distance(transform.position, colliderPlayer.transform.position), mask);
     }
 
 
@@ -142,6 +169,45 @@ public class Kid : MonoBehaviour
 
     private bool HasAttackedRecently()
     {
-        return Time.time - timeSinceLastAttack < TIME_BETWEEN_ATTACKS;
+        return Time.time - timeSinceLastAttack < TIME_BETWEEN_HUGS;
     }
+
+    #endregion
+
+
+    #region Event Recievers
+
+    private void OnPlayerEscapingHug()
+    {
+        SetState(KidState.STUNNED);
+    }
+
+    #endregion
+
+
+    #region Coroutines
+
+    private IEnumerator StunnedCoroutine()
+    {
+        _agent.isStopped = true;
+
+        Color colorDefault = _spriteRenderer.color;
+        Color colorTransparent = _spriteRenderer.color;
+        colorTransparent.a = 0.25f;
+        _spriteRenderer.color = colorTransparent;
+
+
+        yield return new WaitForSecondsRealtime(STUN_DURATION);
+
+        _spriteRenderer.color = colorDefault;
+
+
+
+        Debug.Log("Stun duration done");
+
+
+        SetState(KidState.SEARCHING);
+    }
+
+    #endregion
 }
