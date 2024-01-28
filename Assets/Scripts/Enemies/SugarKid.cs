@@ -2,20 +2,25 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class WeirdKid : Kid
+public class SugarKid : Kid
 {
+
     protected override void Start()
     {
         base.Start();
 
-        HugDamage = 100;
-        RunSpeed = 1f;
-        AnimationSpeed = 0.5f;
+        RunSpeed = 20f;
+        AnimationSpeed = 10f;
+
+        IdleDuration = BASE_IDLE_DURATION * 0.5f;
 
 
         _agent.speed = RunSpeed;
         _animator.speed = AnimationSpeed;
 
-        Debug.Log("Weird Kid subclass Start is called");
+        Debug.Log("Sugar Kid subclass Start is called");
     }
+
+
+    // override idle duration
 }
