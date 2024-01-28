@@ -13,6 +13,16 @@ public enum KidState
     STUNNED
 }
 
+public enum KidType
+{
+    BASE,
+    PRINCESS,
+    WEIRD,
+    GOTH,
+    SUGAR,
+    GROSS
+}
+
 public class Kid : MonoBehaviour
 {
     // Settings
@@ -20,7 +30,7 @@ public class Kid : MonoBehaviour
     [SerializeField] protected float AnimationSpeed = 1f;
     protected int HugDamage = BASE_HUG_DAMAGE;
     protected float IdleDuration = BASE_IDLE_DURATION;
-
+    protected KidType type = KidType.BASE;
 
 
     public const int BASE_HUG_DAMAGE = 25;
@@ -29,7 +39,7 @@ public class Kid : MonoBehaviour
     public const float STUN_DURATION = 2f;
     public const float BASE_IDLE_DURATION = 5f;
 
-    public static event Action<int, int> OnKidAttacking;
+    public static event Action<KidType, int, int> OnKidAttacking;
 
     protected KidState _state;
     protected NavMeshAgent _agent;
@@ -159,7 +169,7 @@ public class Kid : MonoBehaviour
 
     protected virtual void Attack()
     {
-        OnKidAttacking?.Invoke(HugDamage, UnityEngine.Random.Range(BASE_HUG_STRENGTH - 3, BASE_HUG_STRENGTH + 3));
+        OnKidAttacking?.Invoke(type, HugDamage, UnityEngine.Random.Range(BASE_HUG_STRENGTH - 3, BASE_HUG_STRENGTH + 3));
         _timeSinceLastAttack = Time.time;
     }
 

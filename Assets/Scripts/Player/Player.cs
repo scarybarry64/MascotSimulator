@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
@@ -132,7 +133,10 @@ public class Player : MonoBehaviour
         }
     }
 
-
+    private void Die(KidType type)
+    {
+        GameManager.instance.DoGameOver(type);
+    }
 
 
     #endregion
@@ -140,7 +144,7 @@ public class Player : MonoBehaviour
 
     #region Primary Event Recievers
 
-    private void OnKidAttacking(int hugDamage, int hugStrength)
+    private void OnKidAttacking(KidType type, int hugDamage, int hugStrength)
     {
         if (!_isBeingAttacked)
         {
@@ -154,7 +158,10 @@ public class Player : MonoBehaviour
         Exhaustion += hugDamage;
 
 
-
+        if (Exhaustion >= 100)
+        {
+            Die(type);
+        }
 
 
 

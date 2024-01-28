@@ -9,6 +9,9 @@ public class SugarKid : Kid
     {
         base.Start();
 
+
+        type = KidType.SUGAR;
+
         RunSpeed = 20f;
         AnimationSpeed = 10f;
 

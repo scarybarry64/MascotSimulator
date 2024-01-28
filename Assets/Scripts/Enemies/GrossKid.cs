@@ -4,6 +4,10 @@ using UnityEngine;
 
 public class GrossKid : Kid
 {
+    protected override void Start()
+    {
+        base.Start();
 
-    //
+        type = KidType.GROSS;
+    }
 }

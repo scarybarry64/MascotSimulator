@@ -4,5 +4,10 @@ using UnityEngine;
 
 public class GothKid : Kid
 {
-    //
+    protected override void Start()
+    {
+        base.Start();
+
+        type = KidType.GOTH;
+    }
 }
