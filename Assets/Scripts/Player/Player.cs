@@ -10,7 +10,7 @@ public class Player : MonoBehaviour
 
     public static event Action OnPlayerEscapingHug;
 
-    public const float SPEED = 8f;
+    public const float SPEED = 15f;
 
     private int _exhaustion;
     public int Exhaustion
@@ -42,6 +42,7 @@ public class Player : MonoBehaviour
         _body = GetComponent<Rigidbody2D>();
         _renderer = GetComponent<SpriteRenderer>();
         _animator = GetComponent<Animator>();
+        _animator.speed = 1.75f;
         _input.Enable();
 
         _input.Player.Move.performed += OnMovementPressed;
