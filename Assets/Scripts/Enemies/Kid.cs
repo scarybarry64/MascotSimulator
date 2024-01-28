@@ -3,13 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
-using System;
 
 public class Kid : MonoBehaviour
 {
-    public static event Action<int, int> onKidAttacking;
+    public static event Action<int, int> OnKidAttacking;
     
-    protected enum KidState
+    private enum KidState
     {
         IDLE,
         SEARCHING,
@@ -17,74 +16,60 @@ public class Kid : MonoBehaviour
         STUNNED
     }
 
+    [SerializeField] private LayerMask _maskBlockable;
 
-
-    public LayerMask mask;
-
-
-
-
-    private const float RUN_SPEED = 3f;
-    private const int HUG_DAMAGE = 25;
+    private const float BASE_RUN_SPEED = 3f;
+    private const int BASE_HUG_DAMAGE = 25;
     private const int BASE_HUG_STRENGTH = 5;
     private const float TIME_BETWEEN_HUGS = 1f;
     private const float STUN_DURATION = 2f;
-
     private const string PLAYER_TAG = "Player";
-
-
 
     private KidState _state;
     private NavMeshAgent _agent;
-    private SpriteRenderer _spriteRenderer;
-
-
+    private SpriteRenderer _renderer;
+    private Animator _animator;
     private Vector2 _positionPlayerLastSeen;
-    private float timeSinceLastAttack;
-
+    private float _timeSinceLastAttack;
 
     private void Start()
     {
         _agent = GetComponent<NavMeshAgent>();
-        _spriteRenderer = GetComponent<SpriteRenderer>();
+        _renderer = GetComponent<SpriteRenderer>();
+        _animator = GetComponent<Animator>();
 
-
+        _agent.speed = BASE_RUN_SPEED;
         _agent.updateRotation = false;
         _agent.updateUpAxis = false;
-
-        _agent.speed = RUN_SPEED;
-
-
-        timeSinceLastAttack = Time.time;
-
+        _timeSinceLastAttack = Time.time;
 
         SetState(KidState.IDLE);
+
+        Player.OnPlayerEscapingHug += OnPlayerEscapingHug;
     }
-
-
-    private void OnEnable()
-    {
-        Player.onPlayerEscapingHug += OnPlayerEscapingHug;
-    }
-
 
     private void OnDisable()
     {
-        Player.onPlayerEscapingHug -= OnPlayerEscapingHug;
+        Player.OnPlayerEscapingHug -= OnPlayerEscapingHug;
     }
 
+    private void Update()
+    {
+        HandleSpriteFlipping();
+    }
 
     private void SetState(KidState state)
     {
         _state = state;
 
-        Debug.Log("Kid is: " + state.ToString());
+        //Debug.Log("Kid is: " + state.ToString());
 
         switch (state)
         {
             case KidState.IDLE:
 
                 _agent.isStopped = true;
+                _animator.SetBool("isMoving", false);
                 return;
 
             case KidState.HUNTING:
@@ -92,6 +77,7 @@ public class Kid : MonoBehaviour
 
                 _agent.SetDestination(_positionPlayerLastSeen);
                 _agent.isStopped = false;
+                _animator.SetBool("isMoving", true);
                 return;
 
             case KidState.STUNNED:
@@ -100,7 +86,6 @@ public class Kid : MonoBehaviour
                 return;
         }
     }
-
 
 
     #region Collision
@@ -146,8 +131,8 @@ public class Kid : MonoBehaviour
 
     protected virtual void Attack()
     {
-        onKidAttacking?.Invoke(HUG_DAMAGE, UnityEngine.Random.Range(BASE_HUG_STRENGTH - 3, BASE_HUG_STRENGTH + 3));
-        timeSinceLastAttack = Time.time;
+        OnKidAttacking?.Invoke(BASE_HUG_DAMAGE, UnityEngine.Random.Range(BASE_HUG_STRENGTH - 3, BASE_HUG_STRENGTH + 3));
+        _timeSinceLastAttack = Time.time;
     }
 
     #endregion
@@ -158,7 +143,7 @@ public class Kid : MonoBehaviour
     private bool HasLineOfSight(Collider2D colliderPlayer)
     {
         return !Physics2D.CircleCast(transform.position, 0.5f, colliderPlayer.transform.position - transform.position,
-            Vector2.Distance(transform.position, colliderPlayer.transform.position), mask);
+            Vector2.Distance(transform.position, colliderPlayer.transform.position), _maskBlockable);
     }
 
 
@@ -169,7 +154,7 @@ public class Kid : MonoBehaviour
 
     private bool HasAttackedRecently()
     {
-        return Time.time - timeSinceLastAttack < TIME_BETWEEN_HUGS;
+        return Time.time - _timeSinceLastAttack < TIME_BETWEEN_HUGS;
     }
 
     #endregion
@@ -191,15 +176,15 @@ public class Kid : MonoBehaviour
     {
         _agent.isStopped = true;
 
-        Color colorDefault = _spriteRenderer.color;
-        Color colorTransparent = _spriteRenderer.color;
+        Color colorDefault = _renderer.color;
+        Color colorTransparent = _renderer.color;
         colorTransparent.a = 0.25f;
-        _spriteRenderer.color = colorTransparent;
-
+        _renderer.color = colorTransparent;
+        _animator.SetBool("isMoving", false);
 
         yield return new WaitForSecondsRealtime(STUN_DURATION);
 
-        _spriteRenderer.color = colorDefault;
+        _renderer.color = colorDefault;
 
 
 
@@ -207,6 +192,23 @@ public class Kid : MonoBehaviour
 
 
         SetState(KidState.SEARCHING);
+    }
+
+    #endregion
+
+
+    #region Misc
+
+    private void HandleSpriteFlipping()
+    {
+        if (_agent.velocity.x > 0)
+        {
+            _renderer.flipX = true;
+        }
+        else if (_agent.velocity.x < 0)
+        {
+            _renderer.flipX = false;
+        }
     }
 
     #endregion

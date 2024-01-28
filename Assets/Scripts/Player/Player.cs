@@ -8,8 +8,7 @@ using UnityEngine.UI;
 public class Player : MonoBehaviour
 {
 
-    public static event Action onPlayerEscapingHug;
-
+    public static event Action OnPlayerEscapingHug;
 
     public const float SPEED = 8f;
 
@@ -27,40 +26,28 @@ public class Player : MonoBehaviour
         }
     }
 
-
-    private bool _isBeingAttacked;
-
+    [SerializeField] private Slider _slider;
 
     private PlayerInput _input;
     private Rigidbody2D _body;
     private SpriteRenderer _renderer;
     private Animator _animator;
-    [SerializeField] private Slider _slider;
-
-
+    private bool _isBeingAttacked;
     private int _escapeValue;
-
-
     private int _kidHugStrength;
 
-    private void Awake()
+    private void Start()
     {
         _input = new PlayerInput();
         _body = GetComponent<Rigidbody2D>();
         _renderer = GetComponent<SpriteRenderer>();
         _animator = GetComponent<Animator>();
-    }
-
-    private void Start()
-    {
         _input.Enable();
+
         _input.Player.Move.performed += OnMovementPressed;
         _input.Player.Move.canceled += OnMovementCancelled;
         _input.Player.EscapeHug.performed += OnEscapeHugPressed;
-        Kid.onKidAttacking += OnKidAttacking;
-
-
-        _isBeingAttacked = false;
+        Kid.OnKidAttacking += OnKidAttacking;
     }
 
     private void OnDisable()
@@ -69,7 +56,7 @@ public class Player : MonoBehaviour
         _input.Player.Move.performed -= OnMovementPressed;
         _input.Player.Move.canceled -= OnMovementCancelled;
         _input.Player.EscapeHug.performed -= OnEscapeHugPressed;
-        Kid.onKidAttacking -= OnKidAttacking;
+        Kid.OnKidAttacking -= OnKidAttacking;
     }
 
     private void Update()
@@ -138,7 +125,7 @@ public class Player : MonoBehaviour
 
         if (_escapeValue >= _kidHugStrength)
         {
-            onPlayerEscapingHug?.Invoke();
+            OnPlayerEscapingHug?.Invoke();
             _isBeingAttacked = false;
         }
     }
