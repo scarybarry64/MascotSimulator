@@ -11,11 +11,13 @@ public class Kid : MonoBehaviour
     private enum KidState
     {
         IDLE,
+        WANDERING,
         SEARCHING,
         HUNTING,
         STUNNED
     }
 
+    [SerializeField] private SpriteRenderer _floor; // for wander behavior
     [SerializeField] private LayerMask _maskBlockable;
 
     private const float BASE_RUN_SPEED = 3f;
@@ -23,6 +25,7 @@ public class Kid : MonoBehaviour
     private const int BASE_HUG_STRENGTH = 5;
     private const float TIME_BETWEEN_HUGS = 1f;
     private const float STUN_DURATION = 2f;
+    private const float BASE_IDLE_DURATION = 5f;
     private const string PLAYER_TAG = "Player";
 
     private KidState _state;
@@ -31,6 +34,9 @@ public class Kid : MonoBehaviour
     private Animator _animator;
     private Vector2 _positionPlayerLastSeen;
     private float _timeSinceLastAttack;
+
+    private Coroutine _coroutineIdle;
+    private Coroutine _coroutineWander;
 
     private void Start()
     {
@@ -68,13 +74,18 @@ public class Kid : MonoBehaviour
         {
             case KidState.IDLE:
 
-                _agent.isStopped = true;
-                _animator.SetBool("isMoving", false);
+                _coroutineIdle = StartCoroutine(IdleCoroutine());
+                return;
+
+            case KidState.WANDERING:
+
+                _coroutineWander = StartCoroutine(WanderCoroutine());
                 return;
 
             case KidState.HUNTING:
             case KidState.SEARCHING:
 
+                StopPassiveAICoroutines();
                 _agent.SetDestination(_positionPlayerLastSeen);
                 _agent.isStopped = false;
                 _animator.SetBool("isMoving", true);
@@ -170,7 +181,39 @@ public class Kid : MonoBehaviour
     #endregion
 
 
+    private Vector2 CalculateRandomLocation()
+    {
+        float x = UnityEngine.Random.Range(_floor.bounds.min.x, _floor.bounds.max.x);
+        float y = UnityEngine.Random.Range(_floor.bounds.min.y, _floor.bounds.max.y);
+        return new Vector2(x, y);
+    }
+
+
     #region Coroutines
+
+    private IEnumerator IdleCoroutine()
+    {
+        _agent.isStopped = true;
+        _animator.SetBool("isMoving", false);
+
+        yield return new WaitForSecondsRealtime(UnityEngine.Random.Range(BASE_IDLE_DURATION - 3, BASE_IDLE_DURATION + 3));
+
+        SetState(KidState.WANDERING);
+    }
+
+    private IEnumerator WanderCoroutine()
+    {
+        Vector2 destination = CalculateRandomLocation();
+        _agent.SetDestination(destination);
+        _agent.isStopped = false;
+
+        while (Vector2.Distance(transform.position, destination) > 1f)
+        {
+            yield return null;
+        }
+
+        SetState(KidState.IDLE);
+    }
 
     private IEnumerator StunnedCoroutine()
     {
@@ -192,6 +235,19 @@ public class Kid : MonoBehaviour
 
 
         SetState(KidState.SEARCHING);
+    }
+
+    private void StopPassiveAICoroutines()
+    {
+        if (_coroutineIdle != null)
+        {
+            StopCoroutine(_coroutineIdle);
+        }
+
+        if (_coroutineWander != null)
+        {
+            StopCoroutine(_coroutineWander);
+        }
     }
 
     #endregion
