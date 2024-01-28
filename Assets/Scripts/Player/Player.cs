@@ -32,6 +32,7 @@ public class Player : MonoBehaviour
     private SpriteRenderer _renderer;
     private Animator _animator;
     private Slider _sliderExhaustionBar;
+    private GameObject _escapeButton;
     private bool _isBeingAttacked;
     private int _escapeValue;
     private int _kidHugStrength;
@@ -43,6 +44,8 @@ public class Player : MonoBehaviour
         _renderer = GetComponent<SpriteRenderer>();
         _animator = GetComponent<Animator>();
         _sliderExhaustionBar = GameObject.FindGameObjectWithTag("ExhaustionBar").GetComponent<Slider>();
+        _escapeButton = GameObject.FindGameObjectWithTag("EscapeButton");
+        _escapeButton.SetActive(false);
 
         _input.Enable();
         _animator.speed = AnimationSpeed;
@@ -130,6 +133,7 @@ public class Player : MonoBehaviour
         {
             OnPlayerEscapingHug?.Invoke();
             _isBeingAttacked = false;
+            _escapeButton.SetActive(false);
         }
     }
 
@@ -152,6 +156,9 @@ public class Player : MonoBehaviour
             _isBeingAttacked = true;
             _kidHugStrength = hugStrength;
             _escapeValue = 0;
+
+
+            _escapeButton.SetActive(true);
         }
 
 
