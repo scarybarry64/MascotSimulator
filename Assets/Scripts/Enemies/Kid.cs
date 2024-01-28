@@ -6,8 +6,19 @@ using UnityEngine.AI;
 
 public class Kid : MonoBehaviour
 {
+    [SerializeField] private float RunSpeed = 3f;
+    [SerializeField] private float AnimationSpeed = 1f;
+
+    // Settings
+    private const int BASE_HUG_DAMAGE = 25;
+    private const int BASE_HUG_STRENGTH = 5;
+    private const float TIME_BETWEEN_HUGS = 1f;
+    private const float STUN_DURATION = 2f;
+    private const float BASE_IDLE_DURATION = 5f;
+    private const string PLAYER_TAG = "Player";
+
     public static event Action<int, int> OnKidAttacking;
-    
+
     private enum KidState
     {
         IDLE,
@@ -17,26 +28,18 @@ public class Kid : MonoBehaviour
         STUNNED
     }
 
-    [SerializeField] private SpriteRenderer _floor; // for wander behavior
-    [SerializeField] private LayerMask _maskBlockable;
-
-    private const float BASE_RUN_SPEED = 3f;
-    private const int BASE_HUG_DAMAGE = 25;
-    private const int BASE_HUG_STRENGTH = 5;
-    private const float TIME_BETWEEN_HUGS = 1f;
-    private const float STUN_DURATION = 2f;
-    private const float BASE_IDLE_DURATION = 5f;
-    private const string PLAYER_TAG = "Player";
-
     private KidState _state;
     private NavMeshAgent _agent;
     private SpriteRenderer _renderer;
     private Animator _animator;
     private Vector2 _positionPlayerLastSeen;
     private float _timeSinceLastAttack;
+    private SpriteRenderer _floor; // for wander behavior
+    private LayerMask _maskBlockable; // bockables prevent line of sight with player
 
     private Coroutine _coroutineIdle;
     private Coroutine _coroutineWander;
+    private Coroutine _coroutineSearch;
 
     private void Start()
     {
@@ -44,10 +47,18 @@ public class Kid : MonoBehaviour
         _renderer = GetComponent<SpriteRenderer>();
         _animator = GetComponent<Animator>();
 
-        _agent.speed = BASE_RUN_SPEED;
+        _agent.speed = RunSpeed;
         _agent.updateRotation = false;
         _agent.updateUpAxis = false;
         _timeSinceLastAttack = Time.time;
+        _animator.speed = AnimationSpeed;
+
+        // find floor here, might be bad for performance (should use singleton game manager instead)
+        _floor = GameObject.FindGameObjectWithTag("Floor").GetComponent<SpriteRenderer>();
+
+
+        _maskBlockable = LayerMask.GetMask("Blockable");
+
 
         SetState(KidState.IDLE);
 
@@ -83,12 +94,16 @@ public class Kid : MonoBehaviour
                 return;
 
             case KidState.HUNTING:
-            case KidState.SEARCHING:
 
-                StopPassiveAICoroutines();
+                StopAICoroutines();
                 _agent.SetDestination(_positionPlayerLastSeen);
                 _agent.isStopped = false;
                 _animator.SetBool("isMoving", true);
+                return;
+
+            case KidState.SEARCHING:
+
+                _coroutineSearch = StartCoroutine(SearchCoroutine());
                 return;
 
             case KidState.STUNNED:
@@ -153,6 +168,16 @@ public class Kid : MonoBehaviour
 
     private bool HasLineOfSight(Collider2D colliderPlayer)
     {
+        //var test = Physics2D.CircleCast(transform.position, 0.5f, colliderPlayer.transform.position - transform.position,
+        //    Vector2.Distance(transform.position, colliderPlayer.transform.position), BlockableLayerMask);
+
+        //Debug.Log("LOS?: " + !test);
+
+        //if (test)
+        //{
+        //    Debug.Log("Hit: " + test.collider.gameObject.name);
+        //}
+
         return !Physics2D.CircleCast(transform.position, 0.5f, colliderPlayer.transform.position - transform.position,
             Vector2.Distance(transform.position, colliderPlayer.transform.position), _maskBlockable);
     }
@@ -181,14 +206,6 @@ public class Kid : MonoBehaviour
     #endregion
 
 
-    private Vector2 CalculateRandomLocation()
-    {
-        float x = UnityEngine.Random.Range(_floor.bounds.min.x, _floor.bounds.max.x);
-        float y = UnityEngine.Random.Range(_floor.bounds.min.y, _floor.bounds.max.y);
-        return new Vector2(x, y);
-    }
-
-
     #region Coroutines
 
     private IEnumerator IdleCoroutine()
@@ -201,13 +218,31 @@ public class Kid : MonoBehaviour
         SetState(KidState.WANDERING);
     }
 
+    // this can be combned with search coroutine
     private IEnumerator WanderCoroutine()
     {
         Vector2 destination = CalculateRandomLocation();
         _agent.SetDestination(destination);
         _agent.isStopped = false;
+        _animator.SetBool("isMoving", true);
 
         while (Vector2.Distance(transform.position, destination) > 1f)
+        {
+            yield return null;
+        }
+
+        SetState(KidState.IDLE);
+    }
+
+    // this can be combined with wander coroutine
+    private IEnumerator SearchCoroutine()
+    {
+        _agent.SetDestination(_positionPlayerLastSeen);
+        _agent.isStopped = false;
+        _animator.SetBool("isMoving", true);
+
+        // this needs adjustment
+        while (Vector2.Distance(transform.position, _positionPlayerLastSeen) > 4f)
         {
             yield return null;
         }
@@ -237,7 +272,7 @@ public class Kid : MonoBehaviour
         SetState(KidState.SEARCHING);
     }
 
-    private void StopPassiveAICoroutines()
+    private void StopAICoroutines()
     {
         if (_coroutineIdle != null)
         {
@@ -248,12 +283,25 @@ public class Kid : MonoBehaviour
         {
             StopCoroutine(_coroutineWander);
         }
+
+        if (_coroutineSearch != null)
+        {
+            StopCoroutine(_coroutineSearch);
+        }
     }
 
     #endregion
 
 
     #region Misc
+
+    // Finds a random point on the floor of the level, for wandering behavior
+    private Vector2 CalculateRandomLocation()
+    {
+        float x = UnityEngine.Random.Range(_floor.bounds.min.x, _floor.bounds.max.x);
+        float y = UnityEngine.Random.Range(_floor.bounds.min.y, _floor.bounds.max.y);
+        return new Vector2(x, y);
+    }
 
     private void HandleSpriteFlipping()
     {

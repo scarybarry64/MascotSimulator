@@ -7,10 +7,10 @@ using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
-
     public static event Action OnPlayerEscapingHug;
 
-    public const float SPEED = 8f;
+    [SerializeField] private float MoveSpeed = 8f;
+    [SerializeField] private float AnimationSpeed = 1f;
 
     private int _exhaustion;
     public int Exhaustion
@@ -26,12 +26,11 @@ public class Player : MonoBehaviour
         }
     }
 
-    [SerializeField] private Slider _slider;
-
     private PlayerInput _input;
     private Rigidbody2D _body;
     private SpriteRenderer _renderer;
     private Animator _animator;
+    private Slider _sliderExhaustionBar;
     private bool _isBeingAttacked;
     private int _escapeValue;
     private int _kidHugStrength;
@@ -42,7 +41,10 @@ public class Player : MonoBehaviour
         _body = GetComponent<Rigidbody2D>();
         _renderer = GetComponent<SpriteRenderer>();
         _animator = GetComponent<Animator>();
+        _sliderExhaustionBar = GameObject.FindGameObjectWithTag("ExhaustionBar").GetComponent<Slider>();
+
         _input.Enable();
+        _animator.speed = AnimationSpeed;
 
         _input.Player.Move.performed += OnMovementPressed;
         _input.Player.Move.canceled += OnMovementCancelled;
@@ -61,7 +63,7 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
-        _slider.value = Exhaustion;
+        _sliderExhaustionBar.value = Exhaustion;
     }
 
 
@@ -96,7 +98,7 @@ public class Player : MonoBehaviour
 
     private void Move(Vector2 axis)
     {
-        _body.velocity = axis * SPEED;
+        _body.velocity = axis * MoveSpeed;
         _animator.SetBool("isMoving", true);
 
         if (_body.velocity.x > 0)
