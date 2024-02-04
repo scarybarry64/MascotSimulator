@@ -29,17 +29,16 @@ public class Kid : MonoBehaviour
     [SerializeField] protected float RunSpeed = 3f;
     [SerializeField] protected float AnimationSpeed = 1f;
     protected int HugDamage = BASE_HUG_DAMAGE;
+    protected float AttackSpeed = BASE_ATTACK_SPEED;
     protected float IdleDuration = BASE_IDLE_DURATION;
     protected KidType type = KidType.BASE;
 
 
     public const int BASE_HUG_DAMAGE = 25;
     public const int BASE_HUG_STRENGTH = 5;
-    public const float TIME_BETWEEN_HUGS = 1f;
+    public const float BASE_ATTACK_SPEED = 1f;
     public const float STUN_DURATION = 2f;
     public const float BASE_IDLE_DURATION = 5f;
-
-    public static event Action<KidType, int, int> OnKidAttacking;
 
     protected KidState _state;
     protected NavMeshAgent _agent;
@@ -54,8 +53,6 @@ public class Kid : MonoBehaviour
     protected Coroutine _coroutineWander;
     protected Coroutine _coroutineSearch;
 
-    private const string PLAYER_TAG = "Player";
-
     protected virtual void Start()
     {
         _agent = GetComponent<NavMeshAgent>();
@@ -67,7 +64,7 @@ public class Kid : MonoBehaviour
         _agent.speed = RunSpeed;
         _agent.updateRotation = false;
         _agent.updateUpAxis = false;
-        _timeSinceLastAttack = Time.time;
+        _timeSinceLastAttack = 0f;
         _animator.speed = AnimationSpeed;
 
         Player.OnPlayerEscapingHug += OnPlayerEscapingHug;
@@ -128,9 +125,9 @@ public class Kid : MonoBehaviour
 
     #region Collision
 
-    protected void OnTriggerStay2D(Collider2D collider)
+    protected virtual void OnTriggerStay2D(Collider2D collider)
     {
-        if (collider.CompareTag(PLAYER_TAG))
+        if (collider.CompareTag(GameManager.PLAYER_TAG))
         {
             _positionPlayerLastSeen = collider.transform.position;
 
@@ -138,7 +135,7 @@ public class Kid : MonoBehaviour
             {
                 if (IsClose(collider) && !HasAttackedRecently())
                 {
-                    Attack();
+                    MeleeAttack();
                 }
 
                 if (HasLineOfSight(collider))
@@ -156,7 +153,7 @@ public class Kid : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D collider)
     {
-        if (collider.CompareTag(PLAYER_TAG))
+        if (collider.CompareTag(GameManager.PLAYER_TAG))
         {
             SetState(KidState.IDLE);
         }
@@ -167,9 +164,9 @@ public class Kid : MonoBehaviour
 
     #region Actions
 
-    protected virtual void Attack()
+    protected virtual void MeleeAttack()
     {
-        OnKidAttacking?.Invoke(type, HugDamage, UnityEngine.Random.Range(BASE_HUG_STRENGTH - 3, BASE_HUG_STRENGTH + 3));
+        Events.OnPlayerTakingDamage.Invoke(type, HugDamage, UnityEngine.Random.Range(BASE_HUG_STRENGTH - 3, BASE_HUG_STRENGTH + 3));
         _timeSinceLastAttack = Time.time;
     }
 
@@ -178,7 +175,7 @@ public class Kid : MonoBehaviour
 
     #region Bool Checks
 
-    private bool HasLineOfSight(Collider2D colliderPlayer)
+    protected bool HasLineOfSight(Collider2D colliderPlayer)
     {
         //var test = Physics2D.CircleCast(transform.position, 0.5f, colliderPlayer.transform.position - transform.position,
         //    Vector2.Distance(transform.position, colliderPlayer.transform.position), BlockableLayerMask);
@@ -195,14 +192,14 @@ public class Kid : MonoBehaviour
     }
 
 
-    private bool IsClose(Collider2D collider)
+    protected bool IsClose(Collider2D collider)
     {
         return Vector2.Distance(transform.position, collider.transform.position) <= 1f;
     }
 
-    private bool HasAttackedRecently()
+    protected bool HasAttackedRecently()
     {
-        return Time.time - _timeSinceLastAttack < TIME_BETWEEN_HUGS;
+        return Time.time - _timeSinceLastAttack < (1f / AttackSpeed);
     }
 
     #endregion

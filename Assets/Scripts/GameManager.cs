@@ -10,6 +10,8 @@ public class GameManager : MonoBehaviour
 
     public KidType DeathType {  get; private set; }
 
+    public const string PLAYER_TAG = "Player";
+
     private void Awake()
     {
         if (instance != null && instance != this)
@@ -27,9 +29,16 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene("MainScene");
     }
 
+    public void WinGame()
+    {
+        SceneManager.LoadScene("WinScene");
+    }
+
     public void QuitGame()
     {
         Application.Quit();
+
+        //Application.ExternalEval("window.open('about:blank','_self')");
     }
 
     public void DoGameOver(KidType type)

@@ -70,7 +70,7 @@ CircleCollider2D:
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
-  m_Radius: 8
+  m_Radius: 24
 --- !u!195 &4578290987089769672
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -178,5 +178,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 186dc4f200de7324899f18d58a498a20, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RunSpeed: 3
+  RunSpeed: 1
   AnimationSpeed: 1

@@ -35,7 +35,10 @@ public class Player : MonoBehaviour
     private GameObject _escapeButton;
     private bool _isBeingAttacked;
     private int _escapeValue;
-    private int _kidHugStrength;
+    private int _kidAttackStrength;
+
+    private bool inBoogers;
+    private Color colorDefault;
 
     private void Start()
     {
@@ -49,11 +52,12 @@ public class Player : MonoBehaviour
 
         _input.Enable();
         _animator.speed = AnimationSpeed;
+        colorDefault = _renderer.color;
 
         _input.Player.Move.performed += OnMovementPressed;
         _input.Player.Move.canceled += OnMovementCancelled;
         _input.Player.EscapeHug.performed += OnEscapeHugPressed;
-        Kid.OnKidAttacking += OnKidAttacking;
+        Events.OnPlayerTakingDamage.Subscribe(OnPlayerTakingDamage);
     }
 
     private void OnDisable()
@@ -62,13 +66,24 @@ public class Player : MonoBehaviour
         _input.Player.Move.performed -= OnMovementPressed;
         _input.Player.Move.canceled -= OnMovementCancelled;
         _input.Player.EscapeHug.performed -= OnEscapeHugPressed;
-        Kid.OnKidAttacking -= OnKidAttacking;
+        Events.OnPlayerTakingDamage.Unsubscribe(OnPlayerTakingDamage);
     }
 
     private void Update()
     {
         _sliderExhaustionBar.value = Exhaustion;
     }
+
+
+
+    private void OnTriggerEnter2D(Collider2D collider)
+    {
+        if (collider.CompareTag("ExitDoor"))
+        {
+            GameManager.instance.WinGame();
+        }
+    }
+
 
 
     #region Input
@@ -129,11 +144,19 @@ public class Player : MonoBehaviour
     {
         ++_escapeValue;
 
-        if (_escapeValue >= _kidHugStrength)
+        if (_escapeValue >= _kidAttackStrength)
         {
             OnPlayerEscapingHug?.Invoke();
             _isBeingAttacked = false;
             _escapeButton.SetActive(false);
+
+
+            if (inBoogers)
+            {
+                inBoogers = false;
+                _renderer.color = colorDefault;
+            }
+
         }
     }
 
@@ -148,13 +171,13 @@ public class Player : MonoBehaviour
 
     #region Primary Event Recievers
 
-    private void OnKidAttacking(KidType type, int hugDamage, int hugStrength)
+    private void OnPlayerTakingDamage(KidType type, int hugDamage, int hugStrength)
     {
         if (!_isBeingAttacked)
         {
             Stop();
             _isBeingAttacked = true;
-            _kidHugStrength = hugStrength;
+            _kidAttackStrength = hugStrength;
             _escapeValue = 0;
 
 
@@ -163,6 +186,19 @@ public class Player : MonoBehaviour
 
 
         Exhaustion += hugDamage;
+
+
+        // do booger visuals here
+        if (type == KidType.GROSS)
+        {
+            Debug.Log("Do boogers");
+            
+            inBoogers = true;
+            Color colorGreenTint = colorDefault;
+            colorGreenTint.b = 0.5f;
+            colorGreenTint.r = 0.5f;
+            _renderer.color = colorGreenTint;
+        }
 
 
         if (Exhaustion >= 100)
