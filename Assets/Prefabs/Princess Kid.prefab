@@ -31,7 +31,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 10.05, y: -10.92, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.5, y: 1.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -48,9 +48,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 05051da87051f3f449c6d6f5b4a546e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _maskBlockable:
-    serializedVersion: 2
-    m_Bits: 128
+  RunSpeed: 3
+  AnimationSpeed: 1
 --- !u!212 &1467966289024058076
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -91,7 +90,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 9
   m_Sprite: {fileID: -77393429, guid: 9b3adc9b559cea44898e61cd2992df04, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
