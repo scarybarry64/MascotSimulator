@@ -11,5 +11,5 @@ public class Dialogue
     [TextArea(3, 10)]
     public string[] _dialogue_text;
 
-    public Image _speaker_image;
+    public Sprite _speaker_image;
 }

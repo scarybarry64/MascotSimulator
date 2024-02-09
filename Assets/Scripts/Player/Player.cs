@@ -56,7 +56,7 @@ public class Player : MonoBehaviour
 
         _input.Player.Move.performed += OnMovementPressed;
         _input.Player.Move.canceled += OnMovementCancelled;
-        _input.Player.EscapeHug.performed += OnEscapeHugPressed;
+        _input.Player.Action.performed += OnActionPressed;
         Events.OnPlayerTakingDamage.Subscribe(OnPlayerTakingDamage);
     }
 
@@ -65,7 +65,7 @@ public class Player : MonoBehaviour
         _input.Disable();
         _input.Player.Move.performed -= OnMovementPressed;
         _input.Player.Move.canceled -= OnMovementCancelled;
-        _input.Player.EscapeHug.performed -= OnEscapeHugPressed;
+        _input.Player.Action.performed -= OnActionPressed;
         Events.OnPlayerTakingDamage.Unsubscribe(OnPlayerTakingDamage);
     }
 
@@ -102,7 +102,7 @@ public class Player : MonoBehaviour
         Stop();
     }
 
-    private void OnEscapeHugPressed(InputAction.CallbackContext ignore)
+    private void OnActionPressed(InputAction.CallbackContext ignore)
     {
         if (_isBeingAttacked)
         {

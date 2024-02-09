@@ -6,12 +6,9 @@ using UnityEngine.UI;
 
 public class DialogueManager : MonoBehaviour
 {
-    public TextMeshProUGUI _name_object;
-    public TextMeshProUGUI _dialogue_object;
-    public Image _speaker_image;
+    private DialogueBoxUI _dialogue_ui;
 
-    public Animator _dialogue_animation;
-
+    public Transform _canvas_transform;
     private Queue<string> _dialogue_full;
     private bool _typing_done;
 
@@ -21,15 +18,18 @@ public class DialogueManager : MonoBehaviour
         _dialogue_full = new Queue<string>();
         enabled = false;
         _typing_done = false;
+        //creates an instance of prefab and spawn it
+        _dialogue_ui = Instantiate(Resources.Load<DialogueBoxUI>("DialogueBox"), _canvas_transform.transform.position, Quaternion.identity, _canvas_transform);
     }
 
     public void StartDialogue(Dialogue dialogue)
     {
-        if (!_dialogue_animation.GetBool("IsOpen"))
+        if (!_dialogue_ui._dialogue_animation.GetBool("IsOpen"))
         {
-            _dialogue_animation.SetBool("IsOpen", true);
+            _dialogue_ui._speaker_image.sprite = dialogue._speaker_image;
+            _dialogue_ui._dialogue_animation.SetBool("IsOpen", true);
             enabled = true;
-            _name_object.text = dialogue._dialogue_name;
+            _dialogue_ui._name_object.text = dialogue._dialogue_name;
 
             _dialogue_full.Clear();
 
@@ -62,15 +62,15 @@ public class DialogueManager : MonoBehaviour
 
     IEnumerator TypeSentence (string sentence)
     {
-        _dialogue_object.text = "";
+        _dialogue_ui._dialogue_object.text = "";
         _typing_done = false;
         foreach (char letter in sentence.ToCharArray())
         {
-            _dialogue_object.text += letter;
+            _dialogue_ui._dialogue_object.text += letter;
             yield return new WaitForSeconds(0.02f);
             if (_typing_done)
             {
-                _dialogue_object.text = sentence;
+                _dialogue_ui._dialogue_object.text = sentence;
                 break;
             }
         }
@@ -79,7 +79,7 @@ public class DialogueManager : MonoBehaviour
 
     void EndDialogue()
     {
-        _dialogue_animation.SetBool("IsOpen", false);
+        _dialogue_ui._dialogue_animation.SetBool("IsOpen", false);
         _typing_done = false;
         Debug.Log("End of conversation.");
         enabled = false;
