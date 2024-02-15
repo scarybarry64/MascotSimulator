@@ -390,20 +390,62 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _dialogue_list:
-  - _dialogue_name: Speaker D
+  - _dialogue_name: Sally
     _dialogue_text:
-    - You two careful
-    - He is a big
-    _speaker_image: {fileID: 671955146, guid: 016f8075a77758a4d8c9d33e9e7affca, type: 3}
-  - _dialogue_name: Section Tile Ratio
-    _dialogue_text:
-    - Mr. Speaker...
-    - We are for the big.
-    _speaker_image: {fileID: -79869364, guid: 348e3a01045d71244b80085b6f32c9d0, type: 3}
-  - _dialogue_name: Allah Gold
-    _dialogue_text:
-    - Game Time Started!
+    - You're not very fun Mr. Mascot.
+    - I demand you tell me a joke!
     _speaker_image: {fileID: -1416952166, guid: 9b3adc9b559cea44898e61cd2992df04, type: 3}
+  - _dialogue_name: Rodney Rodent
+    _dialogue_text:
+    - ......
+    - What's a pizza maker's favorite song?
+    - ...Slice, Slice Baby!
+    _speaker_image: {fileID: -237186754, guid: 9f2d16cf4bf4d274f985ea60b3bc63ff, type: 3}
+  - _dialogue_name: Sally
+    _dialogue_text:
+    - .........
+    - Ohohohohoho! Daddy he's funny, I want to keep him!
+    - Please oh please, can we keep him??
+    _speaker_image: {fileID: -1416952166, guid: 9b3adc9b559cea44898e61cd2992df04, type: 3}
+  - _dialogue_name: Rodney Rodent
+    _dialogue_text:
+    - No way I'm going home with you, kid.
+    - I have a paycheck to spend!
+    _speaker_image: {fileID: -237186754, guid: 9f2d16cf4bf4d274f985ea60b3bc63ff, type: 3}
+  - _dialogue_name: Sally
+    _dialogue_text:
+    - '>:( >:( >:('
+    - Nobody says no to me!
+    - NOBODY!!!
+    - You're mine FOREVER! SEIZE HIM!!
+    _speaker_image: {fileID: -1416952166, guid: 9b3adc9b559cea44898e61cd2992df04, type: 3}
+  - _dialogue_name: Rodney Rodent
+    _dialogue_text:
+    - '!!!'
+    _speaker_image: {fileID: -237186754, guid: 9f2d16cf4bf4d274f985ea60b3bc63ff, type: 3}
+  - _dialogue_name: Goth Girl
+    _dialogue_text:
+    - ...But...He's really scary Sally...
+    _speaker_image: {fileID: 935956788, guid: 016f8075a77758a4d8c9d33e9e7affca, type: 3}
+  - _dialogue_name: Over-sugared Kid
+    _dialogue_text:
+    - cAnDyCaNdYcAnDyCaNdY!!!
+    - I wonder if he tastes like chocolate!!!
+    _speaker_image: {fileID: -1860758310, guid: 753db5ad257434948ac440008c5e20cf, type: 3}
+  - _dialogue_name: A Really Dirt-Caked Boy
+    _dialogue_text:
+    - '*Flies buzzing*'
+    - ...Hug...
+    _speaker_image: {fileID: -1591760339, guid: 4174f977265980c4b92c3fbf6047d896, type: 3}
+  - _dialogue_name: Quiet Boy
+    _dialogue_text:
+    - '*He says nothing...just stares at you with that smile...*'
+    _speaker_image: {fileID: -79869364, guid: 348e3a01045d71244b80085b6f32c9d0, type: 3}
+  - _dialogue_name: Rodney Rodent
+    _dialogue_text:
+    - My GOD!
+    - I need to get to the exit and away from these kids!
+    _speaker_image: {fileID: -237186754, guid: 9f2d16cf4bf4d274f985ea60b3bc63ff, type: 3}
 --- !u!114 &579296352
 MonoBehaviour:
   m_ObjectHideFlags: 0
