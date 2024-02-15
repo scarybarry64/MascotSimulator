@@ -389,12 +389,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e065d365c1cac1498cd09c0a3ad900c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dialogue:
-    _dialogue_name: Goth Girl
+  _dialogue_list:
+  - _dialogue_name: Speaker D
     _dialogue_text:
-    - Hello there my sweet, demon prince.
-    - Can you open the gateway to hell through your ribcage?
-    _speaker_image: {fileID: 398740156, guid: 016f8075a77758a4d8c9d33e9e7affca, type: 3}
+    - You two careful
+    - He is a big
+    _speaker_image: {fileID: 671955146, guid: 016f8075a77758a4d8c9d33e9e7affca, type: 3}
+  - _dialogue_name: Section Tile Ratio
+    _dialogue_text:
+    - Mr. Speaker...
+    - We are for the big.
+    _speaker_image: {fileID: -79869364, guid: 348e3a01045d71244b80085b6f32c9d0, type: 3}
+  - _dialogue_name: Allah Gold
+    _dialogue_text:
+    - Game Time Started!
+    _speaker_image: {fileID: -1416952166, guid: 9b3adc9b559cea44898e61cd2992df04, type: 3}
 --- !u!114 &579296352
 MonoBehaviour:
   m_ObjectHideFlags: 0

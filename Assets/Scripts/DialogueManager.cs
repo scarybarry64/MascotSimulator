@@ -10,6 +10,7 @@ public class DialogueManager : MonoBehaviour
 
     public Transform _canvas_transform;
     private Queue<string> _dialogue_full;
+    //queue for follow-up dialogues
     private bool _typing_done;
 
     // Start is called before the first frame update
@@ -54,6 +55,10 @@ public class DialogueManager : MonoBehaviour
     public bool IsDialogueOpen()
     {
         return _dialogue_ui._dialogue_animation.GetBool("IsOpen");
+    }
+    public bool IsDialogueFinished()
+    {
+        return !_dialogue_ui._dialogue_animation.GetBool("IsOpen") && _dialogue_ui._dialogue_animation.GetCurrentAnimatorStateInfo(0).IsName("DialogueBox_Close");
     }
     public void NextDialogue()
     {
