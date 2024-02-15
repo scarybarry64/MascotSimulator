@@ -90,7 +90,6 @@ public class Kid : MonoBehaviour
 
         //Debug.Log("Kid" + gameObject.name + " is: " + state.ToString());
         StopAICoroutines();
-        Debug.Log("Your problem is bigger");
         switch (state)
         {
             case KidState.IDLE:

@@ -33,6 +33,7 @@ public class Player : MonoBehaviour
     private Animator _animator;
     private Slider _sliderExhaustionBar;
     private GameObject _escapeButton;
+    private DialogueManager _dialogue_manager;
     private bool _isBeingAttacked;
     private int _escapeValue;
     private int _kidAttackStrength;
@@ -47,6 +48,11 @@ public class Player : MonoBehaviour
         _renderer = GetComponent<SpriteRenderer>();
         _animator = GetComponent<Animator>();
         _sliderExhaustionBar = GameObject.FindGameObjectWithTag("ExhaustionBar").GetComponent<Slider>();
+        GameObject dialogue = GameObject.Find("DialogueManager");
+        if (dialogue)
+        {
+            _dialogue_manager = dialogue.GetComponent<DialogueManager>();
+        }
         _escapeButton = GameObject.FindGameObjectWithTag("EscapeButton");
         _escapeButton.SetActive(false);
 
@@ -107,6 +113,10 @@ public class Player : MonoBehaviour
         if (_isBeingAttacked)
         {
             EscapeHug();
+        }
+        else if (_dialogue_manager.IsDialogueOpen())
+        {
+            _dialogue_manager.NextDialogue();
         }
     }
 
