@@ -70,7 +70,7 @@ CircleCollider2D:
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
-  m_Radius: 6
+  m_Radius: 2
 --- !u!195 &1906300248404691857
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -81,18 +81,18 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 10
-  m_Acceleration: 20
+  m_Speed: 100
+  m_Acceleration: 100
   avoidancePriority: 50
-  m_AngularSpeed: 120
-  m_StoppingDistance: 0
+  m_AngularSpeed: 360
+  m_StoppingDistance: 1
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 0
   m_AutoRepath: 1
   m_Height: 1
   m_BaseOffset: 0.5
   m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 4
+  m_ObstacleAvoidanceType: 2
 --- !u!212 &6374072154807487955
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -178,5 +178,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a168e91cc18834a41882fcacfa70bf0a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RunSpeed: 20
-  AnimationSpeed: 10
+  RunSpeed: 30
+  AnimationSpeed: 15
+  test: {x: 0, y: 0, z: 20}

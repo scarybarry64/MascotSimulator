@@ -10,7 +10,7 @@ public class GrossKid : Kid
 
     private DeadlyBoogers _boogers;
 
-    private Coroutine _coroutineBoogerAttackAI;
+    private Coroutine _coroutineBoogerAttackAI; // not its own KidAIState, since it happens while in Hunting state
 
     
     protected override void Start()
