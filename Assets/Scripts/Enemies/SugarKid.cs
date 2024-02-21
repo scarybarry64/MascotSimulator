@@ -25,5 +25,8 @@ public class SugarKid : Kid
     }
 
 
-    // override idle duration
+    //private void Update()
+    //{
+    //    Debug.Log("Sugar kid state: " + _state);
+    //}
 }

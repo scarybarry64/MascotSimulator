@@ -9,6 +9,9 @@ public class GrossKid : Kid
     public const float BOOGER_DURATION = 5f;
 
     private DeadlyBoogers _boogers;
+
+    private Coroutine _coroutineBoogerAttackAI;
+
     
     protected override void Start()
     {
@@ -21,46 +24,62 @@ public class GrossKid : Kid
         _boogers = Resources.Load<DeadlyBoogers>("DeadlyBoogers");
     }
 
-    protected override void OnTriggerStay2D(Collider2D collider)
+
+    #region AI State Machine
+
+    protected override void SetAIState(KidAIState state)
     {
-        if (collider.CompareTag(GameManager.PLAYER_TAG))
+        base.SetAIState(state);
+
+        if (IsAIState(KidAIState.HUNTING) && _coroutineBoogerAttackAI == null)
         {
-            _positionPlayerLastSeen = collider.transform.position;
-
-            if (_state != KidState.STUNNED)
-            {
-                if (!HasAttackedRecently())
-                {
-                    if (!IsClose(collider))
-                    {
-                        RangedAttack();
-                    }
-                    else
-                    {
-                        MeleeAttack();
-                    }
-                }
-                else
-                {
-                    Debug.Log("Gross kid attacked recently");
-                }
-
-                if (HasLineOfSight(collider))
-                {
-                    SetState(KidState.HUNTING);
-                }
-                else if (_state == KidState.HUNTING)
-                {
-                    SetState(KidState.SEARCHING);
-                }
-            }
+            _coroutineBoogerAttackAI = StartCoroutine(BoogerAttackAICoroutine());
+        }
+        else if (!IsAIState(KidAIState.HUNTING) && _coroutineBoogerAttackAI != null)
+        {
+            StopCoroutine(_coroutineBoogerAttackAI);
+            _coroutineBoogerAttackAI = null;
         }
     }
 
-    private void RangedAttack()
+    #endregion
+
+
+    #region AI Coroutines
+
+    private IEnumerator BoogerAttackAICoroutine()
+    {
+        while (IsAIState(KidAIState.HUNTING))
+        {
+            BoogerAttack();
+
+            yield return new WaitForSecondsRealtime(CalculateTimeBetweenAttacks() * 1.5f);
+        }
+
+        _coroutineBoogerAttackAI = null;
+    }
+
+    protected override void StopAllAICoroutines()
+    {
+        base.StopAllAICoroutines();
+
+        if (_coroutineBoogerAttackAI != null)
+        {
+            StopCoroutine(_coroutineBoogerAttackAI);
+            _coroutineBoogerAttackAI = null;
+        }
+    }
+
+    #endregion
+
+
+    #region Actions
+
+    private void BoogerAttack()
     {
         DeadlyBoogers boogers = Instantiate(_boogers, transform.position, Quaternion.identity);
         boogers.Direction = (_positionPlayerLastSeen - (Vector2)transform.position).normalized;
-        _timeSinceLastAttack = Time.time;
     }
+
+    #endregion
 }

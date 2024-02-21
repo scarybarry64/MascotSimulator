@@ -4,15 +4,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public enum KidState
-{
-    IDLE,
-    WANDERING,
-    SEARCHING,
-    HUNTING,
-    STUNNED
-}
-
 public enum KidType
 {
     BASE,
@@ -23,24 +14,42 @@ public enum KidType
     GROSS
 }
 
+/// <summary>
+/// Idle: Passive, stationary
+/// Wandering: Randomly moves around
+/// Hunting: Spotted player, moving towards them
+/// Searching: Lost sight of player while hunting, now moving to last known location
+/// Attacking: Damaging player
+/// Stunned: Temporarily immobilized after player escapes hug
+/// </summary>
+public enum KidAIState
+{
+    IDLE,
+    WANDERING,
+    HUNTING,
+    SEARCHING,
+    HUG_ATTACKING,
+    STUNNED
+}
+
+
 public class Kid : MonoBehaviour
 {
     // Settings
     [SerializeField] protected float RunSpeed = 3f;
     [SerializeField] protected float AnimationSpeed = 1f;
-    protected int HugDamage = BASE_HUG_DAMAGE;
+    protected int AttackDamage = BASE_HUG_DAMAGE;
     protected float AttackSpeed = BASE_ATTACK_SPEED;
     protected float IdleDuration = BASE_IDLE_DURATION;
     protected KidType type = KidType.BASE;
 
 
-    public const int BASE_HUG_DAMAGE = 25;
-    public const int BASE_HUG_STRENGTH = 5;
+    public const int BASE_HUG_DAMAGE = 20;
+    public const int BASE_ATTACK_STRENGTH = 5;
     public const float BASE_ATTACK_SPEED = 1f;
-    public const float STUN_DURATION = 2f;
     public const float BASE_IDLE_DURATION = 5f;
 
-    protected KidState _state;
+    protected KidAIState _state;
     protected NavMeshAgent _agent;
     protected SpriteRenderer _renderer;
     protected Animator _animator;
@@ -49,9 +58,12 @@ public class Kid : MonoBehaviour
     protected SpriteRenderer _floor; // for wander behavior
     protected LayerMask _maskBlockable; // bockables prevent line of sight with player
 
-    protected Coroutine _coroutineIdle;
-    protected Coroutine _coroutineWander;
-    protected Coroutine _coroutineSearch;
+    protected Coroutine _coroutineIdleAI;
+    protected Coroutine _coroutineWanderAI;
+    protected Coroutine _coroutineSearchAI;
+    protected Coroutine _coroutineHuntingAI;
+    protected Coroutine _coroutineHugAttackAI;
+    protected Coroutine _coroutineStunnedAI;
 
     protected virtual void Start()
     {
@@ -67,95 +79,253 @@ public class Kid : MonoBehaviour
         _timeSinceLastAttack = 0f;
         _animator.speed = AnimationSpeed;
 
-        Player.OnPlayerEscapingHug += OnPlayerEscapingHug;
+        Events.OnPlayerEscapingHug.Subscribe(OnPlayerEscapingHug);
 
-        SetState(KidState.IDLE);
-
-        Debug.Log("Calling Start for: " + gameObject.name);
+        SetAIState(KidAIState.IDLE);
     }
+
 
     private void OnDisable()
     {
-        Player.OnPlayerEscapingHug -= OnPlayerEscapingHug;
+        Events.OnPlayerEscapingHug.Unsubscribe(OnPlayerEscapingHug);
     }
+
+
 
     private void Update()
     {
         HandleSpriteFlipping();
     }
 
-    protected void SetState(KidState state)
-    {
-        _state = state;
 
-        //Debug.Log("Kid" + gameObject.name + " is: " + state.ToString());
+    #region AI State Machine
+
+    public KidAIState GetAIState()
+    {
+        return _state;
+    }
+
+    public bool IsAIState(KidAIState state)
+    {
+        return state == _state;
+    }
+
+    protected virtual void SetAIState(KidAIState state)
+    {
+        if (IsAIState(state) || !gameObject.activeSelf)
+        {
+            return;
+        }
+
+        _state = state;
 
         switch (state)
         {
-            case KidState.IDLE:
+            case KidAIState.IDLE:
 
-                _coroutineIdle = StartCoroutine(IdleCoroutine());
+                _coroutineIdleAI = StartCoroutine(IdleCoroutine());
                 return;
 
-            case KidState.WANDERING:
+            case KidAIState.WANDERING:
 
-                _coroutineWander = StartCoroutine(WanderCoroutine());
+                _coroutineWanderAI = StartCoroutine(WanderCoroutine());
                 return;
 
-            case KidState.HUNTING:
+            case KidAIState.HUNTING:
 
-                StopAICoroutines();
-                _agent.SetDestination(_positionPlayerLastSeen);
-                _agent.isStopped = false;
-                _animator.SetBool("isMoving", true);
+                StopAllAICoroutines();
+                _coroutineHuntingAI = StartCoroutine(HuntingAICoroutine());
                 return;
 
-            case KidState.SEARCHING:
+            case KidAIState.HUG_ATTACKING:
 
-                _coroutineSearch = StartCoroutine(SearchCoroutine());
+                _coroutineHugAttackAI = StartCoroutine(HugAttackCoroutine());
                 return;
 
-            case KidState.STUNNED:
+            case KidAIState.SEARCHING:
 
-                StartCoroutine(StunnedCoroutine());
+                _coroutineSearchAI = StartCoroutine(SearchCoroutine());
+                return;
+
+            case KidAIState.STUNNED:
+
+                _coroutineStunnedAI = StartCoroutine(StunnedCoroutine());
                 return;
         }
     }
+
+    #endregion
 
 
     #region Collision
 
     protected virtual void OnTriggerStay2D(Collider2D collider)
     {
-        if (collider.CompareTag(GameManager.PLAYER_TAG))
+        if (IsPlayerCollision(collider))
         {
             _positionPlayerLastSeen = collider.transform.position;
 
-            if (_state != KidState.STUNNED)
+            if (_state != KidAIState.STUNNED)
             {
-                if (IsClose(collider) && !HasAttackedRecently())
-                {
-                    MeleeAttack();
-                }
-
                 if (HasLineOfSight(collider))
                 {
-                    SetState(KidState.HUNTING);
+                    if (InMeleeRangeToPlayer(collider.transform.position) && !IsAIState(KidAIState.HUG_ATTACKING))
+                    {
+                        SetAIState(KidAIState.HUG_ATTACKING);
+                    }
+                    else if (!InMeleeRangeToPlayer(collider.transform.position))
+                    {
+                        SetAIState(KidAIState.HUNTING);
+                    }
                 }
-                else if (_state == KidState.HUNTING)
+                else if (IsAIState(KidAIState.HUNTING))
                 {
-                    SetState(KidState.SEARCHING);
+                    SetAIState(KidAIState.SEARCHING);
                 }
             }
         }
     }
 
 
-    private void OnTriggerExit2D(Collider2D collider)
+    protected virtual void OnTriggerExit2D(Collider2D collider)
     {
-        if (collider.CompareTag(GameManager.PLAYER_TAG))
+        if (IsPlayerCollision(collider))
         {
-            SetState(KidState.IDLE);
+            SetAIState(KidAIState.IDLE);
+        }
+    }
+
+    #endregion
+
+
+    #region AI Coroutines
+
+    protected virtual IEnumerator IdleCoroutine()
+    {
+        _agent.isStopped = true;
+        _animator.SetBool("isMoving", false);
+
+        yield return new WaitForSecondsRealtime(UnityEngine.Random.Range(IdleDuration - 3, IdleDuration + 3));
+
+        _coroutineIdleAI = null;
+        SetAIState(KidAIState.WANDERING);
+    }
+
+    // Code is similar to search coroutine, combine?
+    protected virtual IEnumerator WanderCoroutine()
+    {
+        Vector2 destination = CalculateRandomLevelLocation();
+        _agent.SetDestination(destination);
+        _agent.isStopped = false;
+        _animator.SetBool("isMoving", true);
+
+        while (Vector2.Distance(transform.position, destination) > 1f)
+        {
+            yield return null;
+        }
+
+        _coroutineWanderAI = null;
+        SetAIState(KidAIState.IDLE);
+    }
+
+    private IEnumerator HuntingAICoroutine()
+    {
+        _agent.isStopped = false;
+        _animator.SetBool("isMoving", true);
+
+        while (IsAIState(KidAIState.HUNTING))
+        {
+            _agent.SetDestination(_positionPlayerLastSeen);
+
+            yield return null;
+        }
+
+        _coroutineHuntingAI = null;
+    }
+
+    private IEnumerator HugAttackCoroutine()
+    {
+        _agent.isStopped = true;
+        _animator.SetBool("isMoving", false);
+
+        while (IsAIState(KidAIState.HUG_ATTACKING))
+        {
+            HugAttack();
+
+            yield return new WaitForSecondsRealtime(CalculateTimeBetweenAttacks());
+        }
+
+        _coroutineHugAttackAI = null;
+    }
+
+    protected virtual IEnumerator SearchCoroutine()
+    {
+        _agent.SetDestination(_positionPlayerLastSeen);
+        _agent.isStopped = false;
+        _animator.SetBool("isMoving", true);
+
+        // this needs adjustment
+        while (Vector2.Distance(transform.position, _positionPlayerLastSeen) > 4f)
+        {
+            yield return null;
+        }
+
+        _coroutineSearchAI = null;
+        SetAIState(KidAIState.IDLE);
+    }
+
+    protected virtual IEnumerator StunnedCoroutine()
+    {
+        _agent.isStopped = true;
+        Color colorDefault = _renderer.color;
+        Color colorTransparent = _renderer.color;
+        colorTransparent.a = 0.25f;
+        _renderer.color = colorTransparent;
+        _animator.SetBool("isMoving", false);
+
+        yield return new WaitForSecondsRealtime(GameManager.KID_STUN_DURATION);
+
+        _renderer.color = colorDefault;
+        _coroutineStunnedAI = null;
+        SetAIState(KidAIState.SEARCHING);
+    }
+
+    protected virtual void StopAllAICoroutines()
+    {
+        if (_coroutineIdleAI != null)
+        {
+            StopCoroutine(_coroutineIdleAI);
+            _coroutineIdleAI = null;
+        }
+
+        if (_coroutineWanderAI != null)
+        {
+            StopCoroutine(_coroutineWanderAI);
+            _coroutineWanderAI = null;
+        }
+
+        if (_coroutineHuntingAI != null)
+        {
+            StopCoroutine(_coroutineHuntingAI);
+            _coroutineHuntingAI = null;
+        }
+
+        if (_coroutineHugAttackAI != null)
+        {
+            StopCoroutine(_coroutineHugAttackAI);
+            _coroutineHugAttackAI = null;
+        }
+
+        if (_coroutineSearchAI != null)
+        {
+            StopCoroutine(_coroutineSearchAI);
+            _coroutineSearchAI = null;
+        }
+
+        if (_coroutineStunnedAI != null)
+        {
+            StopCoroutine(_coroutineStunnedAI);
+            _coroutineStunnedAI = null;
         }
     }
 
@@ -164,10 +334,10 @@ public class Kid : MonoBehaviour
 
     #region Actions
 
-    protected virtual void MeleeAttack()
+    // Unnessecary abstraction for now, but perhaps will have more later (like animations and sound)
+    protected virtual void HugAttack()
     {
-        Events.OnPlayerTakingDamage.Invoke(type, HugDamage, UnityEngine.Random.Range(BASE_HUG_STRENGTH - 3, BASE_HUG_STRENGTH + 3));
-        _timeSinceLastAttack = Time.time;
+        Events.OnKidAttacking.Invoke(type, AttackDamage, CalculateHugAttackStrength());
     }
 
     #endregion
@@ -191,112 +361,48 @@ public class Kid : MonoBehaviour
             Vector2.Distance(transform.position, colliderPlayer.transform.position), _maskBlockable);
     }
 
-
-    protected bool IsClose(Collider2D collider)
+    protected bool InMeleeRangeToPlayer(Vector2 positionPlayer)
     {
-        return Vector2.Distance(transform.position, collider.transform.position) <= 1f;
+        return Vector2.Distance(transform.position, positionPlayer) <= 1f;
     }
 
-    protected bool HasAttackedRecently()
+
+    protected bool InCloseRangeToPlayer(Vector2 positionPlayer)
     {
-        return Time.time - _timeSinceLastAttack < (1f / AttackSpeed);
+        return Vector2.Distance(transform.position, positionPlayer) <= 4f;
     }
+
+
+    // Shorthand for checking if player collision, and ensuring that the AI stuff doesn't trigger when the kid is disabled
+    protected bool IsPlayerCollision(Collider2D collider)
+    {
+        return collider.CompareTag(GameManager.TAG_PLAYER);
+    }
+
+
 
     #endregion
 
 
-    #region Event Recievers
+    #region Event Listeners
 
-    private void OnPlayerEscapingHug()
+    protected virtual void OnPlayerEscapingHug()
     {
-        SetState(KidState.STUNNED);
-    }
 
-    #endregion
-
-
-    #region Coroutines
-
-    private IEnumerator IdleCoroutine()
-    {
-        _agent.isStopped = true;
-        _animator.SetBool("isMoving", false);
-
-        yield return new WaitForSecondsRealtime(UnityEngine.Random.Range(IdleDuration - 3, IdleDuration + 3));
-
-        SetState(KidState.WANDERING);
-    }
-
-    // this can be combned with search coroutine
-    private IEnumerator WanderCoroutine()
-    {
-        Vector2 destination = CalculateRandomLocation();
-        _agent.SetDestination(destination);
-        _agent.isStopped = false;
-        _animator.SetBool("isMoving", true);
-
-        while (Vector2.Distance(transform.position, destination) > 1f)
+        if (IsAIState(KidAIState.HUG_ATTACKING) || (IsAIState(KidAIState.HUNTING) && InCloseRangeToPlayer(_positionPlayerLastSeen)))
         {
-            yield return null;
+            SetAIState(KidAIState.STUNNED);
         }
+        
+        
+        //Debug.Log("Kid reacting to escape hug 1");
+        
+        //SetState(KidState.STUNNED);
 
-        SetState(KidState.IDLE);
-    }
-
-    // this can be combined with wander coroutine
-    private IEnumerator SearchCoroutine()
-    {
-        _agent.SetDestination(_positionPlayerLastSeen);
-        _agent.isStopped = false;
-        _animator.SetBool("isMoving", true);
-
-        // this needs adjustment
-        while (Vector2.Distance(transform.position, _positionPlayerLastSeen) > 4f)
-        {
-            yield return null;
-        }
-
-        SetState(KidState.IDLE);
-    }
-
-    private IEnumerator StunnedCoroutine()
-    {
-        _agent.isStopped = true;
-
-        Color colorDefault = _renderer.color;
-        Color colorTransparent = _renderer.color;
-        colorTransparent.a = 0.25f;
-        _renderer.color = colorTransparent;
-        _animator.SetBool("isMoving", false);
-
-        yield return new WaitForSecondsRealtime(STUN_DURATION);
-
-        _renderer.color = colorDefault;
+        //Debug.Log("Kid reacting to escape hug 2");
 
 
-
-        Debug.Log("Stun duration done");
-
-
-        SetState(KidState.SEARCHING);
-    }
-
-    private void StopAICoroutines()
-    {
-        if (_coroutineIdle != null)
-        {
-            StopCoroutine(_coroutineIdle);
-        }
-
-        if (_coroutineWander != null)
-        {
-            StopCoroutine(_coroutineWander);
-        }
-
-        if (_coroutineSearch != null)
-        {
-            StopCoroutine(_coroutineSearch);
-        }
+        //Events.OnPlayerEscapingHug.Unsubscribe(OnPlayerEscapingHug);
     }
 
     #endregion
@@ -305,14 +411,25 @@ public class Kid : MonoBehaviour
     #region Misc
 
     // Finds a random point on the floor of the level, for wandering behavior
-    private Vector2 CalculateRandomLocation()
+    protected Vector2 CalculateRandomLevelLocation()
     {
         float x = UnityEngine.Random.Range(_floor.bounds.min.x, _floor.bounds.max.x);
         float y = UnityEngine.Random.Range(_floor.bounds.min.y, _floor.bounds.max.y);
         return new Vector2(x, y);
     }
 
-    private void HandleSpriteFlipping()
+    protected int CalculateHugAttackStrength()
+    {
+        return UnityEngine.Random.Range(BASE_ATTACK_STRENGTH - 3, BASE_ATTACK_STRENGTH + 3);
+    }
+
+    protected float CalculateTimeBetweenAttacks()
+    {
+        return 1f / AttackSpeed;
+    }
+
+
+    protected void HandleSpriteFlipping()
     {
         if (_agent.velocity.x > 0)
         {

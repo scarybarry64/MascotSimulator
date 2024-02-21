@@ -8,10 +8,10 @@ using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
-    public static event Action OnPlayerEscapingHug;
+    //public static event Action OnPlayerEscapingHug;
 
-    [SerializeField] private float MoveSpeed = 8f;
-    [SerializeField] private float AnimationSpeed = 1f;
+    [SerializeField] private float MoveSpeed = 6f;
+    [SerializeField] private float AnimationSpeed = 1.5f;
 
     private int _exhaustion;
     public int Exhaustion
@@ -24,6 +24,11 @@ public class Player : MonoBehaviour
         set
         {
             _exhaustion = Mathf.Clamp(value, 0, 100);
+
+            if (_exhaustion == 100)
+            {
+                Die();
+            }
         }
     }
 
@@ -39,6 +44,12 @@ public class Player : MonoBehaviour
 
     private bool inBoogers;
     private Color colorDefault;
+
+
+
+    private KidType typeKidAttacking = KidType.BASE;
+
+
 
     private void Start()
     {
@@ -57,7 +68,9 @@ public class Player : MonoBehaviour
         _input.Player.Move.performed += OnMovementPressed;
         _input.Player.Move.canceled += OnMovementCancelled;
         _input.Player.EscapeHug.performed += OnEscapeHugPressed;
-        Events.OnPlayerTakingDamage.Subscribe(OnPlayerTakingDamage);
+
+
+        Events.OnKidAttacking.Subscribe(OnKidAttacking);
     }
 
     private void OnDisable()
@@ -66,8 +79,11 @@ public class Player : MonoBehaviour
         _input.Player.Move.performed -= OnMovementPressed;
         _input.Player.Move.canceled -= OnMovementCancelled;
         _input.Player.EscapeHug.performed -= OnEscapeHugPressed;
-        Events.OnPlayerTakingDamage.Unsubscribe(OnPlayerTakingDamage);
+
+
+        Events.OnKidAttacking.Unsubscribe(OnKidAttacking);
     }
+
 
     private void Update()
     {
@@ -137,98 +153,88 @@ public class Player : MonoBehaviour
     }
 
 
+
     // pick a random value, the "hug strength"
     // every time the player hits a button, increment a "escape value"
     // if escape value >= hug strength, break free
+
+    // multiple kids can attack player at same time
+    // breaking free causes all attackers and nearby kids to be stunned
     private void EscapeHug()
     {
         ++_escapeValue;
 
         if (_escapeValue >= _kidAttackStrength)
         {
-            OnPlayerEscapingHug?.Invoke();
             _isBeingAttacked = false;
             _escapeButton.SetActive(false);
-
+            Events.OnPlayerEscapingHug.Invoke();
 
             if (inBoogers)
             {
-                inBoogers = false;
-                _renderer.color = colorDefault;
+                SetBoogerVisuals(false);
             }
-
         }
     }
 
-    private void Die(KidType type)
+    // game over screen determined by type of kid that kills player
+    private void Die()
     {
-        GameManager.instance.DoGameOver(type);
+        GameManager.instance.DoGameOver(typeKidAttacking);
     }
-
 
     #endregion
 
 
-    #region Primary Event Recievers
 
-    private void OnPlayerTakingDamage(KidType type, int hugDamage, int hugStrength)
+    #region Event Listeners
+
+    private void OnKidAttacking(KidType type, int damage, int strength)
     {
+        Exhaustion += damage;
+
         if (!_isBeingAttacked)
         {
             Stop();
             _isBeingAttacked = true;
-            _kidAttackStrength = hugStrength;
+            _kidAttackStrength = strength;
+
+            typeKidAttacking = type;
+
             _escapeValue = 0;
-
-
             _escapeButton.SetActive(true);
         }
 
-
-        Exhaustion += hugDamage;
-
-
-        // do booger visuals here
         if (type == KidType.GROSS)
         {
-            Debug.Log("Do boogers");
-            
+            SetBoogerVisuals(true);
+        }
+    }
+
+    #endregion
+
+
+    #region Misc
+
+    private void SetBoogerVisuals(bool isEnabled)
+    {
+        if (isEnabled)
+        {
             inBoogers = true;
             Color colorGreenTint = colorDefault;
             colorGreenTint.b = 0.5f;
             colorGreenTint.r = 0.5f;
             _renderer.color = colorGreenTint;
         }
-
-
-        if (Exhaustion >= 100)
+        else
         {
-            Die(type);
+            inBoogers = false;
+            _renderer.color = colorDefault;
         }
-
-
-
-        // 
-
-
-
-
-
-        // start thingy here
-
-        // doesn't happen if player is already being attacked
-
-        // player cant move
-
-        // player takes damage every second
-
-        // player must button mash to escape
-
-        // when escaped, kid is stunned for 0.5 seconds and cannot attack
-
-        // repeat if player doesn't run away in time
-
     }
 
+
+
     #endregion
+
 }

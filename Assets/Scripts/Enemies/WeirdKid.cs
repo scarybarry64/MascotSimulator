@@ -11,7 +11,7 @@ public class WeirdKid : Kid
         type = KidType.WEIRD;
 
 
-        HugDamage = 100;
+        AttackDamage = 100;
         RunSpeed = 1f;
         AnimationSpeed = 0.5f;
 
