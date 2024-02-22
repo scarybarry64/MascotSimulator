@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 753db5ad257434948ac440008c5e20cf
+guid: 0c0935f991f4d964bad62f2874fb43a7
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -126,10 +126,10 @@ TextureImporter:
       name: SugarKid_0
       rect:
         serializedVersion: 2
-        x: 45
-        y: 321
-        width: 100
-        height: 266
+        x: 28
+        y: 313
+        width: 126
+        height: 264
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -137,8 +137,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 9aacb813de917c740a04293e76710864
-      internalID: -871655233
+      spriteID: 8bd950f12124e3842aa9a93139917dbd
+      internalID: -2001581709
       vertices: []
       indices: 
       edges: []
@@ -147,10 +147,10 @@ TextureImporter:
       name: SugarKid_1
       rect:
         serializedVersion: 2
-        x: 177
-        y: 319
-        width: 138
-        height: 265
+        x: 189
+        y: 306
+        width: 155
+        height: 267
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -158,8 +158,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 7e69dfab32585094badce6682313ad59
-      internalID: -2135005243
+      spriteID: 39d3f1bcc59ed674a96665826409cf79
+      internalID: -1158220553
       vertices: []
       indices: 
       edges: []
@@ -168,10 +168,10 @@ TextureImporter:
       name: SugarKid_2
       rect:
         serializedVersion: 2
-        x: 348
-        y: 313
-        width: 132
-        height: 274
+        x: 356
+        y: 310
+        width: 155
+        height: 266
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -179,8 +179,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 1ffb248bf76413648b2b2743ef7ca8bb
-      internalID: 1990197252
+      spriteID: 3a3f58fa9d902c34fb37dc082c63de34
+      internalID: 1487362471
       vertices: []
       indices: 
       edges: []
@@ -189,10 +189,10 @@ TextureImporter:
       name: SugarKid_3
       rect:
         serializedVersion: 2
-        x: 525
-        y: 314
-        width: 126
-        height: 277
+        x: 533
+        y: 311
+        width: 155
+        height: 271
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -200,8 +200,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 1990c512c3f9f204aac46f3423a8d0c5
-      internalID: 266015273
+      spriteID: 0a963331357805b4f9dc3cc8e5f93ee1
+      internalID: -1084390282
       vertices: []
       indices: 
       edges: []
@@ -210,10 +210,10 @@ TextureImporter:
       name: SugarKid_4
       rect:
         serializedVersion: 2
-        x: 707
-        y: 317
-        width: 126
-        height: 266
+        x: 705
+        y: 312
+        width: 155
+        height: 260
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -221,8 +221,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 418d095f3166ab648939b776a700f795
-      internalID: -1743313299
+      spriteID: 51eb16268956c2841addb94686124313
+      internalID: 1745245740
       vertices: []
       indices: 
       edges: []
@@ -231,10 +231,10 @@ TextureImporter:
       name: SugarKid_5
       rect:
         serializedVersion: 2
-        x: 875
-        y: 310
-        width: 126
-        height: 277
+        x: 876
+        y: 307
+        width: 155
+        height: 267
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -242,8 +242,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 184994ec4935cfa49b5e843e977193ff
-      internalID: -553537355
+      spriteID: 296c495ca30760f46bf6faf593051d04
+      internalID: -1573803945
       vertices: []
       indices: 
       edges: []
@@ -252,10 +252,10 @@ TextureImporter:
       name: SugarKid_6
       rect:
         serializedVersion: 2
-        x: 1036
-        y: 312
-        width: 126
-        height: 278
+        x: 1041
+        y: 306
+        width: 155
+        height: 276
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -263,8 +263,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 5fe53f2e25c73974b94da2ff4a5a875c
-      internalID: -700187128
+      spriteID: adfcf5660459b61478040673847e0ed5
+      internalID: -1298851839
       vertices: []
       indices: 
       edges: []
@@ -273,10 +273,10 @@ TextureImporter:
       name: SugarKid_7
       rect:
         serializedVersion: 2
-        x: 45
-        y: 19
-        width: 126
-        height: 278
+        x: 7
+        y: 12
+        width: 155
+        height: 276
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -284,8 +284,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f988b220ca6552a4184a9f290cf08ac6
-      internalID: 236116298
+      spriteID: 83d8ea2b67c33d841badfed408f49c68
+      internalID: 1088043579
       vertices: []
       indices: 
       edges: []
@@ -294,10 +294,10 @@ TextureImporter:
       name: SugarKid_8
       rect:
         serializedVersion: 2
-        x: 206
-        y: 17
-        width: 126
-        height: 277
+        x: 172
+        y: 13
+        width: 155
+        height: 267
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -305,8 +305,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 96b23da4bfb513741977adf69a428b3c
-      internalID: 1298398770
+      spriteID: 131279da78d90d34189b28ece58acc1b
+      internalID: -1598850871
       vertices: []
       indices: 
       edges: []
@@ -315,10 +315,10 @@ TextureImporter:
       name: SugarKid_9
       rect:
         serializedVersion: 2
-        x: 374
-        y: 24
-        width: 126
-        height: 266
+        x: 343
+        y: 18
+        width: 155
+        height: 260
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -326,8 +326,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: fe179e9c287bc2d468eccaa733d80e0d
-      internalID: 1258186524
+      spriteID: b13f368dbf8e0d0448df4527bc82fdb1
+      internalID: 2132131547
       vertices: []
       indices: 
       edges: []
@@ -336,10 +336,10 @@ TextureImporter:
       name: SugarKid_10
       rect:
         serializedVersion: 2
-        x: 556
-        y: 21
-        width: 126
-        height: 277
+        x: 515
+        y: 17
+        width: 155
+        height: 271
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -347,8 +347,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 6e11ae6bc5b932f41b7871ad2f783d63
-      internalID: 1392655565
+      spriteID: 147cae5ac641dfc4391af545d6998a66
+      internalID: -990409653
       vertices: []
       indices: 
       edges: []
@@ -357,51 +357,9 @@ TextureImporter:
       name: SugarKid_11
       rect:
         serializedVersion: 2
-        x: 727
-        y: 20
-        width: 132
-        height: 274
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 3319a7e912d5b4b45ad5c463f95391cf
-      internalID: 624174912
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: SugarKid_12
-      rect:
-        serializedVersion: 2
-        x: 892
-        y: 26
-        width: 138
-        height: 265
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 06dc7238371173d4c86871a4f2752aa3
-      internalID: -2103176048
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: SugarKid_13
-      rect:
-        serializedVersion: 2
-        x: 1062
-        y: 28
-        width: 100
+        x: 692
+        y: 16
+        width: 155
         height: 266
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -410,8 +368,50 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: c3634a4edcab350469713a3954243062
-      internalID: -1860758310
+      spriteID: 3667d9521980f204b8b9e4385619486e
+      internalID: -572019596
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SugarKid_12
+      rect:
+        serializedVersion: 2
+        x: 859
+        y: 12
+        width: 155
+        height: 267
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 695dd24f16930e24892929c6bb51e3f3
+      internalID: 2030904532
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SugarKid_13
+      rect:
+        serializedVersion: 2
+        x: 1049
+        y: 19
+        width: 126
+        height: 264
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 76b9972ab8b30194bb9855e8b62781c4
+      internalID: 351987364
       vertices: []
       indices: 
       edges: []
@@ -427,20 +427,20 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      SugarKid_0: -871655233
-      SugarKid_1: -2135005243
-      SugarKid_10: 1392655565
-      SugarKid_11: 624174912
-      SugarKid_12: -2103176048
-      SugarKid_13: -1860758310
-      SugarKid_2: 1990197252
-      SugarKid_3: 266015273
-      SugarKid_4: -1743313299
-      SugarKid_5: -553537355
-      SugarKid_6: -700187128
-      SugarKid_7: 236116298
-      SugarKid_8: 1298398770
-      SugarKid_9: 1258186524
+      SugarKid_0: -2001581709
+      SugarKid_1: -1158220553
+      SugarKid_10: -990409653
+      SugarKid_11: -572019596
+      SugarKid_12: 2030904532
+      SugarKid_13: 351987364
+      SugarKid_2: 1487362471
+      SugarKid_3: -1084390282
+      SugarKid_4: 1745245740
+      SugarKid_5: -1573803945
+      SugarKid_6: -1298851839
+      SugarKid_7: 1088043579
+      SugarKid_8: -1598850871
+      SugarKid_9: 2132131547
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

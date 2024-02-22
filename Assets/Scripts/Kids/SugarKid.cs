@@ -44,16 +44,11 @@ public class SugarKid : Kid
         base.Update();
 
 
-        // if wandering / searching and close to destination, instantly stop
-
-
-
-
         if (doIdleSpinning)
         {
             transform.Rotate(100f * Time.deltaTime * test);
         }
-        
+
     }
 
 
@@ -61,6 +56,15 @@ public class SugarKid : Kid
 
     protected override void SetAIState(KidAIState state)
     {
+        if (IsAIState(state) || !gameObject.activeSelf)
+        {
+            return;
+        }
+
+
+        Debug.Log("Setting sugar to: " + state);
+
+
         base.SetAIState(state);
 
         if (IsAIState(KidAIState.IDLE))
@@ -72,7 +76,6 @@ public class SugarKid : Kid
             doIdleSpinning = false;
             transform.rotation = rotationDefault;
         }
-
     }
 
 
