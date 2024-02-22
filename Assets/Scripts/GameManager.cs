@@ -10,11 +10,13 @@ public class GameManager : MonoBehaviour
 
 
     public static GameManager instance {  get; private set; }
+    public Player Player { get; private set; }
 
     public KidType KillerType {  get; private set; }
 
     public const string TAG_PLAYER = "Player";
     public const string TAG_EXIT_DOOR = "ExitDoor";
+    public const string TAG_PRINCESS_ALERT_ZONE = "PrincessCommandZone";
 
     private void Awake()
     {
@@ -26,6 +28,8 @@ public class GameManager : MonoBehaviour
         {
             instance = this;
         }
+
+        Player = FindAnyObjectByType<Player>();
     }
 
     public void StartGame()

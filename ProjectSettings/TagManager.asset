@@ -8,6 +8,7 @@ TagManager:
   - ExhaustionBar
   - EscapeButton
   - ExitDoor
+  - PrincessCommandZone
   layers:
   - Default
   - TransparentFX
@@ -18,9 +19,9 @@ TagManager:
   - Player
   - Blockable
   - Projectile
-  - 
-  - 
-  - 
+  - KidAIDetection
+  - PrincessCommandZone
+  - Kid
   - 
   - 
   - 

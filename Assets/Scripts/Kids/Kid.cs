@@ -55,10 +55,14 @@ public class Kid : MonoBehaviour
     protected NavMeshAgent _agent;
     protected SpriteRenderer _renderer;
     protected Animator _animator;
+
+    protected CircleCollider2D colliderAIPlayerDetection;
     protected Vector2 _positionPlayerLastSeen;
     protected float _timeSinceLastAttack;
     protected SpriteRenderer _floor; // for wander behavior
     protected LayerMask _maskBlockable; // bockables prevent line of sight with player
+    protected bool inPrincessCommandZone; // when inside, able to be commanded to attack player by princess
+    protected bool isCommandedToHuntPlayer; // while active, hunting player regardless of distance
 
     protected Coroutine _coroutineIdleAI;
     protected Coroutine _coroutineWanderAI;
@@ -81,7 +85,11 @@ public class Kid : MonoBehaviour
         _timeSinceLastAttack = 0f;
         _animator.speed = AnimationSpeed;
 
+        colliderAIPlayerDetection = transform.Find("AI Player Detection").GetComponent<CircleCollider2D>();
+
+
         Events.OnPlayerEscapingHug.Subscribe(OnPlayerEscapingHug);
+        Events.OnPrincessCommanding.Subscribe(OnPrincessCommanding);
 
         SetAIState(KidAIState.IDLE);
     }
@@ -90,6 +98,7 @@ public class Kid : MonoBehaviour
     protected virtual void OnDisable()
     {
         Events.OnPlayerEscapingHug.Unsubscribe(OnPlayerEscapingHug);
+        Events.OnPrincessCommanding.Unsubscribe(OnPrincessCommanding);
     }
 
 
@@ -98,6 +107,59 @@ public class Kid : MonoBehaviour
     {
         HandleSpriteFlipping();
     }
+
+
+    protected virtual void OnTriggerStay2D(Collider2D collider)
+    {
+        switch (collider.tag)
+        {
+            case GameManager.TAG_PLAYER:
+
+                if (_state != KidAIState.STUNNED)
+                {
+                    if (IsPlayerWithinLineOfSight())
+                    {
+                        _positionPlayerLastSeen = GameManager.instance.Player.transform.position;
+
+                        if (IsPlayerWithinMeleeRange() && !IsAIState(KidAIState.HUG_ATTACKING))
+                        {
+                            SetAIState(KidAIState.HUG_ATTACKING);
+                        }
+                        else if (!IsPlayerWithinMeleeRange())
+                        {
+                            SetAIState(KidAIState.HUNTING);
+                        }
+                    }
+                    else if (IsAIState(KidAIState.HUNTING) && !isCommandedToHuntPlayer)
+                    {
+                        SetAIState(KidAIState.SEARCHING);
+                    }
+                }
+                return;
+
+            case GameManager.TAG_PRINCESS_ALERT_ZONE:
+
+                inPrincessCommandZone = true;
+                return;
+        }
+    }
+
+
+    protected virtual void OnTriggerExit2D(Collider2D collider)
+    {
+        switch (collider.tag)
+        {
+            case GameManager.TAG_PLAYER:
+
+                if (!isCommandedToHuntPlayer)
+                {
+                    SetAIState(KidAIState.IDLE);
+                }
+                return;
+        }
+    }
+
+
 
 
     #region Actions
@@ -155,11 +217,6 @@ public class Kid : MonoBehaviour
     {
         if (IsAIState(state) || !gameObject.activeSelf)
         {
-
-            //Debug.Log("Ignoring set state");
-            //Debug.Log("sate?: " + _state);
-            //Debug.Log("Active?: " + gameObject.activeSelf);
-            
             return;
         }
 
@@ -229,21 +286,22 @@ public class Kid : MonoBehaviour
         SetAIState(KidAIState.IDLE);
     }
 
-    private IEnumerator HuntingAICoroutine()
+    // Pursue player
+    protected virtual IEnumerator HuntingAICoroutine()
     {
-        MoveToDestination(_positionPlayerLastSeen);
+        MoveToDestination(GameManager.instance.Player.transform.position);
 
         while (IsAIState(KidAIState.HUNTING))
         {
-            yield return null;
+            yield return new WaitForFixedUpdate();
 
-            _agent.SetDestination(_positionPlayerLastSeen);
+            _agent.SetDestination(GameManager.instance.Player.transform.position);
         }
 
         _coroutineHuntingAI = null;
     }
 
-    private IEnumerator HugAttackCoroutine()
+    protected virtual IEnumerator HugAttackCoroutine()
     {
         StopMovement();
 
@@ -263,9 +321,14 @@ public class Kid : MonoBehaviour
         MoveToDestination(_positionPlayerLastSeen);
 
         // this needs adjustment
-        while (Vector2.Distance(transform.position, _positionPlayerLastSeen) > 4f)
+        while (Vector2.Distance(transform.position, _positionPlayerLastSeen) > 1f)
         {
+            //Debug.Log("Searching for: " + _positionPlayerLastSeen);
+            //Debug.Log(Vector2.Distance(transform.position, _positionPlayerLastSeen));
+
             yield return null;
+
+            _agent.SetDestination(_positionPlayerLastSeen);
         }
 
         _coroutineSearchAI = null;
@@ -329,84 +392,33 @@ public class Kid : MonoBehaviour
     #endregion
 
 
-    #region AI Player Detection
-
-    protected virtual void OnTriggerStay2D(Collider2D collider)
-    {
-        if (IsPlayerCollision(collider))
-        {
-            _positionPlayerLastSeen = collider.transform.position;
-
-            if (_state != KidAIState.STUNNED)
-            {
-                if (HasLineOfSight(collider))
-                {
-                    if (InMeleeRangeToPlayer(collider.transform.position) && !IsAIState(KidAIState.HUG_ATTACKING))
-                    {
-                        SetAIState(KidAIState.HUG_ATTACKING);
-                    }
-                    else if (!InMeleeRangeToPlayer(collider.transform.position))
-                    {
-                        SetAIState(KidAIState.HUNTING);
-                    }
-                }
-                else if (IsAIState(KidAIState.HUNTING))
-                {
-                    SetAIState(KidAIState.SEARCHING);
-                }
-            }
-        }
-    }
-
-
-    protected virtual void OnTriggerExit2D(Collider2D collider)
-    {
-        if (IsPlayerCollision(collider))
-        {
-            SetAIState(KidAIState.IDLE);
-        }
-    }
-
-    #endregion
-
-
     #region Bool Checks
 
-    protected bool HasLineOfSight(Collider2D colliderPlayer)
+    // Does a simple line cast to player, blocked by walls
+    protected bool IsPlayerWithinLineOfSight()
     {
-        //var test = Physics2D.CircleCast(transform.position, 0.5f, colliderPlayer.transform.position - transform.position,
-        //    Vector2.Distance(transform.position, colliderPlayer.transform.position), BlockableLayerMask);
+        Debug.DrawLine(transform.position, GameManager.instance.Player.transform.position, Color.magenta);
 
-        //Debug.Log("LOS?: " + !test);
-
-        //if (test)
-        //{
-        //    Debug.Log("Hit: " + test.collider.gameObject.name);
-        //}
-
-        return !Physics2D.CircleCast(transform.position, 0.5f, colliderPlayer.transform.position - transform.position,
-            Vector2.Distance(transform.position, colliderPlayer.transform.position), _maskBlockable);
+        return !Physics2D.Linecast(transform.position, GameManager.instance.Player.transform.position, _maskBlockable);
     }
 
-    protected bool InMeleeRangeToPlayer(Vector2 positionPlayer)
+    // Player is inside the bounds of the AI Player Detection circle
+    private bool IsPlayerWithinDetectionRange()
     {
-        return Vector2.Distance(transform.position, positionPlayer) <= 1f;
+        return Vector2.Distance(transform.position, GameManager.instance.Player.transform.position) <= colliderAIPlayerDetection.radius;
     }
 
-
-    protected bool InCloseRangeToPlayer(Vector2 positionPlayer)
+    // combine this with InCloseRangeToPlayer? (get player distance level or something)
+    protected bool IsPlayerWithinMeleeRange()
     {
-        return Vector2.Distance(transform.position, positionPlayer) <= 4f;
+        return Vector2.Distance(transform.position, GameManager.instance.Player.transform.position) <= 1f;
     }
 
-
-    // Shorthand for checking if player collision, and ensuring that the AI stuff doesn't trigger when the kid is disabled
-    protected bool IsPlayerCollision(Collider2D collider)
+    // idk, like between detection and melee distances
+    protected bool IsPlayerWithinMediumRange()
     {
-        return collider.CompareTag(GameManager.TAG_PLAYER);
+        return Vector2.Distance(transform.position, GameManager.instance.Player.transform.position) <= 4f;
     }
-
-
 
     #endregion
 
@@ -415,21 +427,36 @@ public class Kid : MonoBehaviour
 
     protected virtual void OnPlayerEscapingHug()
     {
-
-        if (IsAIState(KidAIState.HUG_ATTACKING) || (IsAIState(KidAIState.HUNTING) && InCloseRangeToPlayer(_positionPlayerLastSeen)))
+        if (IsAIState(KidAIState.HUG_ATTACKING) || (IsAIState(KidAIState.HUNTING) && IsPlayerWithinMediumRange()))
         {
             SetAIState(KidAIState.STUNNED);
         }
-        
-        
-        //Debug.Log("Kid reacting to escape hug 1");
-        
-        //SetState(KidState.STUNNED);
+    }
 
-        //Debug.Log("Kid reacting to escape hug 2");
+    // If princess detects player, she commands all nearby kids to hunt them
+    // Kids are considered nearby if inside Princess Command Zone circle
+    // Commanded kids will hunt player indefinitely regardless of distance, until princess loses player
+    // When princess loses player, kids that are hunting and still close to player will continue to hunt, otherwise they revert to idle
+    protected virtual void OnPrincessCommanding(bool huntPlayer)
+    {
+        if (inPrincessCommandZone)
+        {
+            if (huntPlayer && !IsAIState(KidAIState.HUNTING) && !IsAIState(KidAIState.HUG_ATTACKING))
+            {
+                isCommandedToHuntPlayer = true;
+                SetAIState(KidAIState.HUNTING);
+            }
+            else if (!huntPlayer)
+            {
+                isCommandedToHuntPlayer = false;
+                inPrincessCommandZone = false;
 
-
-        //Events.OnPlayerEscapingHug.Unsubscribe(OnPlayerEscapingHug);
+                if (IsAIState(KidAIState.HUNTING) && !IsPlayerWithinDetectionRange())
+                {
+                    SetAIState(KidAIState.IDLE);
+                }
+            }
+        }
     }
 
     #endregion

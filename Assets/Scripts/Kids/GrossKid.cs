@@ -25,6 +25,19 @@ public class GrossKid : Kid
     }
 
 
+    //protected override void Update()
+    //{
+    //    base.Update();
+
+
+    //    Debug.Log("Gross kid state: " + _state);
+    //    Debug.Log("In princess zone?: " + InPrincessAlertZone);
+    //    Debug.Log("Flag for princess?: " + flagAlertedByPrincess);
+
+    //}
+
+
+
     #region AI State Machine
 
     protected override void SetAIState(KidAIState state)

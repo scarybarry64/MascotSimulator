@@ -8,12 +8,10 @@ using System;
 #region Events
 public static class Events
 {
+    
     public static readonly Event<KidType, int, int> OnKidAttacking = new();
-
-
     public static readonly Event OnPlayerEscapingHug = new();
-
-
+    public static readonly Event<bool> OnPrincessCommanding = new();
 
 }
 #endregion
