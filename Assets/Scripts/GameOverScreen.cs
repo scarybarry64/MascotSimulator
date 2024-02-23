@@ -19,7 +19,7 @@ public class GameOverScreen : MonoBehaviour
 
             Debug.Log(sprite.name);
 
-            if (sprite.name.Equals(GameManager.instance.DeathType.ToString(), System.StringComparison.Ordinal))
+            if (sprite.name.Equals(GameManager.instance.KillerType.ToString(), System.StringComparison.Ordinal))
             {
                 screen.sprite = sprite;
                 break;
