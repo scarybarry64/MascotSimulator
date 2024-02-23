@@ -52,7 +52,7 @@ public class SugarKid : Kid
     }
 
 
-
+    // maybe she will occasioanlly dart directly at player?
 
     protected override void SetAIState(KidAIState state)
     {
@@ -77,6 +77,29 @@ public class SugarKid : Kid
             transform.rotation = rotationDefault;
         }
     }
+
+    // There's a 5% chance she will dart directly towards player
+    protected override Vector2 CalculateRandomLevelLocation()
+    {
+        float x;
+        float y;
+
+        if (UnityEngine.Random.Range(0f, 1f) < 0.95f)
+        {
+            x = UnityEngine.Random.Range(_floor.bounds.min.x, _floor.bounds.max.x);
+            y = UnityEngine.Random.Range(_floor.bounds.min.y, _floor.bounds.max.y);
+        }
+        else
+        {
+            Debug.Log("Goodbye player");
+            
+            x = GameManager.instance.Player.transform.position.x;
+            y = GameManager.instance.Player.transform.position.y;
+        }
+        
+        return new Vector2(x, y);
+    }
+
 
 
     protected override float CalculateIdleDuration()

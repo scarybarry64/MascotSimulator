@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+
 public class GameManager : MonoBehaviour
 {
     public const float KID_STUN_DURATION = 5f;
@@ -14,9 +15,6 @@ public class GameManager : MonoBehaviour
 
     public KidType KillerType {  get; private set; }
 
-    public const string TAG_PLAYER = "Player";
-    public const string TAG_EXIT_DOOR = "ExitDoor";
-    public const string TAG_PRINCESS_ALERT_ZONE = "PrincessCommandZone";
 
     private void Awake()
     {

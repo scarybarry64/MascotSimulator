@@ -9,6 +9,7 @@ TagManager:
   - EscapeButton
   - ExitDoor
   - PrincessCommandZone
+  - PizzaItem
   layers:
   - Default
   - TransparentFX
@@ -22,7 +23,7 @@ TagManager:
   - KidAIDetection
   - PrincessCommandZone
   - Kid
-  - 
+  - Items
   - 
   - 
   - 

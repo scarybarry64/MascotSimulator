@@ -25,7 +25,7 @@ public class DeadlyBoogers : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.collider.CompareTag(GameManager.TAG_PLAYER))
+        if (collision.collider.CompareTag(CollisionTags.PLAYER))
         {
             Events.OnKidAttacking.Invoke(KidType.GROSS, GrossKid.BOOGER_DAMAGE, 3);
         }

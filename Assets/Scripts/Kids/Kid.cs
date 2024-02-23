@@ -113,7 +113,7 @@ public class Kid : MonoBehaviour
     {
         switch (collider.tag)
         {
-            case GameManager.TAG_PLAYER:
+            case CollisionTags.PLAYER:
 
                 if (_state != KidAIState.STUNNED)
                 {
@@ -137,7 +137,7 @@ public class Kid : MonoBehaviour
                 }
                 return;
 
-            case GameManager.TAG_PRINCESS_ALERT_ZONE:
+            case CollisionTags.PRINCESS_COMMAND_ZONE:
 
                 inPrincessCommandZone = true;
                 return;
@@ -149,7 +149,7 @@ public class Kid : MonoBehaviour
     {
         switch (collider.tag)
         {
-            case GameManager.TAG_PLAYER:
+            case CollisionTags.PLAYER:
 
                 if (!isCommandedToHuntPlayer)
                 {
@@ -465,19 +465,19 @@ public class Kid : MonoBehaviour
     #region Misc
 
     // Finds a random point on the floor of the level, for wandering behavior
-    protected Vector2 CalculateRandomLevelLocation()
+    protected virtual Vector2 CalculateRandomLevelLocation()
     {
         float x = UnityEngine.Random.Range(_floor.bounds.min.x, _floor.bounds.max.x);
         float y = UnityEngine.Random.Range(_floor.bounds.min.y, _floor.bounds.max.y);
         return new Vector2(x, y);
     }
 
-    protected int CalculateHugAttackStrength()
+    protected virtual int CalculateHugAttackStrength()
     {
         return UnityEngine.Random.Range(BASE_ATTACK_STRENGTH - 3, BASE_ATTACK_STRENGTH + 3);
     }
 
-    protected float CalculateTimeBetweenAttacks()
+    protected virtual float CalculateTimeBetweenAttacks()
     {
         return 1f / AttackSpeed;
     }

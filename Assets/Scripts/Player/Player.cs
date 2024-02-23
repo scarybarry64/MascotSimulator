@@ -50,6 +50,11 @@ public class Player : MonoBehaviour
     private KidType typeKidAttacking = KidType.BASE;
 
 
+    //private LinkedList<Item> inventory = new();
+
+
+
+
 
     private void Start()
     {
@@ -71,6 +76,7 @@ public class Player : MonoBehaviour
 
 
         Events.OnKidAttacking.Subscribe(OnKidAttacking);
+        Events.OnHealthReplenished.Subscribe(OnHealthReplenished);
     }
 
     private void OnDisable()
@@ -82,6 +88,7 @@ public class Player : MonoBehaviour
 
 
         Events.OnKidAttacking.Unsubscribe(OnKidAttacking);
+        Events.OnHealthReplenished.Unsubscribe(OnHealthReplenished);
     }
 
 
@@ -94,9 +101,26 @@ public class Player : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collider)
     {
-        if (collider.CompareTag("ExitDoor"))
+
+        switch (collider.tag)
         {
-            GameManager.instance.WinGame();
+            case CollisionTags.ITEM_PIZZA:
+
+                UseItemInstantly(collider);
+                return;
+
+            case CollisionTags.ITEM_KEY:
+            case CollisionTags.ITEM_SODA:
+            case CollisionTags.ITEM_TISSUES:
+            case CollisionTags.ITEM_CANDY:
+
+                PickupItem(collider);
+                return;
+
+            case CollisionTags.DOOR_EXIT:
+
+                GameManager.instance.WinGame();
+                return;
         }
     }
 
@@ -115,7 +139,7 @@ public class Player : MonoBehaviour
 
     private void OnMovementCancelled(InputAction.CallbackContext ignore)
     {
-        Stop();
+        StopMovement();
     }
 
     private void OnEscapeHugPressed(InputAction.CallbackContext ignore)
@@ -146,12 +170,11 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void Stop()
+    private void StopMovement()
     {
         _body.velocity = Vector2.zero;
         _animator.SetBool("isMoving", false);
     }
-
 
 
     // pick a random value, the "hug strength"
@@ -177,6 +200,46 @@ public class Player : MonoBehaviour
         }
     }
 
+
+
+    //private void bool AddItemToInventory(Item item)
+    //{
+    //    //
+    //}
+
+
+
+    private void PickupItem(Collider2D colliderItem)
+    {
+        // adds item to inventory, destory ingame prefab
+
+
+
+
+    }
+
+
+    private void UseItem()
+    {
+        // finds item in inventory, uses item, removes from inventory
+
+        // alternatively, use withou
+
+
+    }
+
+    
+    private void UseItemInstantly(Collider2D colliderItem)
+    {
+        // use and destory without inventory management
+
+        colliderItem.GetComponent<Item>().Use();
+
+        Destroy(colliderItem.gameObject);
+    }
+
+
+
     // game over screen determined by type of kid that kills player
     private void Die()
     {
@@ -195,7 +258,7 @@ public class Player : MonoBehaviour
 
         if (!_isBeingAttacked)
         {
-            Stop();
+            StopMovement();
             _isBeingAttacked = true;
             _kidAttackStrength = strength;
 
@@ -210,6 +273,14 @@ public class Player : MonoBehaviour
             SetBoogerVisuals(true);
         }
     }
+
+
+    private void OnHealthReplenished(int amount)
+    {
+        Exhaustion -= amount;
+    }
+
+
 
     #endregion
 
