@@ -15,7 +15,7 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "EscapeHug",
+                    "name": "Action",
                     "type": "Button",
                     "id": "f5df4ab8-c2b5-40a6-9132-b5c24d7452e3",
                     "expectedControlType": "Button",
@@ -142,7 +142,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "EscapeHug",
+                    "action": "Action",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

@@ -72,7 +72,7 @@ public class Player : MonoBehaviour
 
         _input.Player.Move.performed += OnMovementPressed;
         _input.Player.Move.canceled += OnMovementCancelled;
-        _input.Player.EscapeHug.performed += OnEscapeHugPressed;
+        _input.Player.Action.performed += OnActionPressed;
 
 
         Events.OnKidAttacking.Subscribe(OnKidAttacking);
@@ -84,7 +84,7 @@ public class Player : MonoBehaviour
         _input.Disable();
         _input.Player.Move.performed -= OnMovementPressed;
         _input.Player.Move.canceled -= OnMovementCancelled;
-        _input.Player.EscapeHug.performed -= OnEscapeHugPressed;
+        _input.Player.Action.performed -= OnActionPressed;
 
 
         Events.OnKidAttacking.Unsubscribe(OnKidAttacking);
@@ -126,7 +126,7 @@ public class Player : MonoBehaviour
 
 
 
-    #region Input
+    #region Input Listeners
 
     private void OnMovementPressed(InputAction.CallbackContext data)
     {
@@ -142,7 +142,7 @@ public class Player : MonoBehaviour
         StopMovement();
     }
 
-    private void OnEscapeHugPressed(InputAction.CallbackContext ignore)
+    private void OnActionPressed(InputAction.CallbackContext ignore)
     {
         if (_isBeingAttacked)
         {
