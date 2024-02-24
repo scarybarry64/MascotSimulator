@@ -4,11 +4,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+
 public class GameManager : MonoBehaviour
 {
-    public static GameManager instance {  get; private set; }
+    public const float KID_STUN_DURATION = 5f;
 
-    public KidType DeathType {  get; private set; }
+
+    public static GameManager instance {  get; private set; }
+    public Player Player { get; private set; }
+
+    public KidType KillerType {  get; private set; }
+
 
     private void Awake()
     {
@@ -20,6 +26,8 @@ public class GameManager : MonoBehaviour
         {
             instance = this;
         }
+
+        Player = FindAnyObjectByType<Player>();
     }
 
     public void StartGame()
@@ -27,14 +35,21 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene("MainScene");
     }
 
+    public void WinGame()
+    {
+        SceneManager.LoadScene("WinScene");
+    }
+
     public void QuitGame()
     {
         Application.Quit();
+
+        //Application.ExternalEval("window.open('about:blank','_self')");
     }
 
     public void DoGameOver(KidType type)
     {
-        DeathType = type;
+        KillerType = type;
         SceneManager.LoadScene("GameOverScene");
     }
 }
