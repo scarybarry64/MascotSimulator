@@ -5,17 +5,13 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEditor;
 
-
 public class GameManager : MonoBehaviour
 {
-    public const float KID_STUN_DURATION = 5f;
-
-
     public static GameManager instance {  get; private set; }
-    public Player Player { get; private set; }
 
-    public KidType KillerType {  get; private set; }
+    public KidType DeathType {  get; private set; }
 
+    public const string PLAYER_TAG = "Player";
 
     private void Awake()
     {
@@ -27,8 +23,6 @@ public class GameManager : MonoBehaviour
         {
             instance = this;
         }
-
-        Player = FindAnyObjectByType<Player>();
     }
 
     public void StartGame()
@@ -52,7 +46,7 @@ public class GameManager : MonoBehaviour
 
     public void DoGameOver(KidType type)
     {
-        KillerType = type;
+        DeathType = type;
         SceneManager.LoadScene("GameOverScene");
     }
 }
