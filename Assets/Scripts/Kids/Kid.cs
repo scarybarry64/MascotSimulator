@@ -59,7 +59,7 @@ public class Kid : MonoBehaviour
     protected CircleCollider2D colliderAIPlayerDetection;
     protected Vector2 _positionPlayerLastSeen;
     protected float _timeSinceLastAttack;
-    protected SpriteRenderer _floor; // for wander behavior
+    protected Renderer _floor; // for wander behavior
     protected LayerMask _maskBlockable; // bockables prevent line of sight with player
     protected bool inPrincessCommandZone; // when inside, able to be commanded to attack player by princess
     protected bool isCommandedToHuntPlayer; // while active, hunting player regardless of distance
@@ -76,7 +76,7 @@ public class Kid : MonoBehaviour
         _agent = GetComponent<NavMeshAgent>();
         _renderer = GetComponent<SpriteRenderer>();
         _animator = GetComponent<Animator>();
-        _floor = GameObject.FindGameObjectWithTag("Floor").GetComponent<SpriteRenderer>(); // find floor here, might be bad for performance (should use singleton game manager instead)
+        _floor = GameObject.FindGameObjectWithTag("Floor").GetComponent<Renderer>(); // find floor here, might be bad for performance (should use singleton game manager instead)
         _maskBlockable = LayerMask.GetMask("Blockable");
 
         _agent.speed = RunSpeed;
