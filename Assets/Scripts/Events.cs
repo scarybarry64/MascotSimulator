@@ -17,6 +17,7 @@ public static class Events
 
     // Items
     public static readonly Event<int> OnHealthReplenished = new();
+    public static readonly Event<EmployeeSecurityLevel> OnEmployeeCardUpgraded = new();
 
 }
 #endregion

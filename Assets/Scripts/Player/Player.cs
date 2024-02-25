@@ -38,6 +38,7 @@ public class Player : MonoBehaviour
     private Animator _animator;
     private Slider _sliderExhaustionBar;
     private GameObject _escapeButton;
+    private DialogueManager _dialogue_manager;
     private bool _isBeingAttacked;
     private int _escapeValue;
     private int _kidAttackStrength;
@@ -53,7 +54,7 @@ public class Player : MonoBehaviour
     //private LinkedList<Item> inventory = new();
 
 
-
+    private EmployeeSecurityLevel cardLevel = EmployeeSecurityLevel.NONE;
 
 
     private void Start()
@@ -66,6 +67,12 @@ public class Player : MonoBehaviour
         _escapeButton = GameObject.FindGameObjectWithTag("EscapeButton");
         _escapeButton.SetActive(false);
 
+        GameObject dialogue = GameObject.Find("DialogueManager");
+        if (dialogue)
+        {
+            _dialogue_manager = dialogue.GetComponent<DialogueManager>();
+        }
+
         _input.Enable();
         _animator.speed = AnimationSpeed;
         colorDefault = _renderer.color;
@@ -76,6 +83,7 @@ public class Player : MonoBehaviour
 
 
         Events.OnKidAttacking.Subscribe(OnKidAttacking);
+        Events.OnEmployeeCardUpgraded.Subscribe(OnEmployeeCardUpgraded);
         Events.OnHealthReplenished.Subscribe(OnHealthReplenished);
     }
 
@@ -88,6 +96,7 @@ public class Player : MonoBehaviour
 
 
         Events.OnKidAttacking.Unsubscribe(OnKidAttacking);
+        Events.OnEmployeeCardUpgraded.Subscribe(OnEmployeeCardUpgraded);
         Events.OnHealthReplenished.Unsubscribe(OnHealthReplenished);
     }
 
@@ -104,12 +113,12 @@ public class Player : MonoBehaviour
 
         switch (collider.tag)
         {
+            case CollisionTags.ITEM_EMPLOYEE_CARD_UPGRADE:
             case CollisionTags.ITEM_PIZZA:
 
                 UseItemInstantly(collider);
                 return;
 
-            case CollisionTags.ITEM_KEY:
             case CollisionTags.ITEM_SODA:
             case CollisionTags.ITEM_TISSUES:
             case CollisionTags.ITEM_CANDY:
@@ -148,16 +157,10 @@ public class Player : MonoBehaviour
         {
             EscapeHug();
         }
-<<<<<<< Updated upstream
-=======
-        else if (_dialogue_manager)
+        else if (_dialogue_manager.IsDialogueOpen())
         {
-            if (_dialogue_manager.IsDialogueOpen())
-            {
-                _dialogue_manager.NextDialogue();
-            }
+            _dialogue_manager.NextDialogue();
         }
->>>>>>> Stashed changes
     }
 
     #endregion
@@ -290,6 +293,16 @@ public class Player : MonoBehaviour
         Exhaustion -= amount;
     }
 
+    
+    private void OnEmployeeCardUpgraded(EmployeeSecurityLevel level)
+    {
+        if (cardLevel < level)
+        {
+            cardLevel = level;
+
+            Debug.Log("Card upgraded to: " + cardLevel);
+        }
+    }
 
 
     #endregion
