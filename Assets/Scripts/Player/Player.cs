@@ -148,6 +148,16 @@ public class Player : MonoBehaviour
         {
             EscapeHug();
         }
+<<<<<<< Updated upstream
+=======
+        else if (_dialogue_manager)
+        {
+            if (_dialogue_manager.IsDialogueOpen())
+            {
+                _dialogue_manager.NextDialogue();
+            }
+        }
+>>>>>>> Stashed changes
     }
 
     #endregion
