@@ -54,7 +54,7 @@ public class Player : MonoBehaviour
     //private LinkedList<Item> inventory = new();
 
 
-
+    private EmployeeSecurityLevel cardLevel = EmployeeSecurityLevel.NONE;
 
 
     private void Start()
@@ -83,6 +83,7 @@ public class Player : MonoBehaviour
 
 
         Events.OnKidAttacking.Subscribe(OnKidAttacking);
+        Events.OnEmployeeCardUpgraded.Subscribe(OnEmployeeCardUpgraded);
         Events.OnHealthReplenished.Subscribe(OnHealthReplenished);
     }
 
@@ -95,6 +96,7 @@ public class Player : MonoBehaviour
 
 
         Events.OnKidAttacking.Unsubscribe(OnKidAttacking);
+        Events.OnEmployeeCardUpgraded.Subscribe(OnEmployeeCardUpgraded);
         Events.OnHealthReplenished.Unsubscribe(OnHealthReplenished);
     }
 
@@ -111,12 +113,12 @@ public class Player : MonoBehaviour
 
         switch (collider.tag)
         {
+            case CollisionTags.ITEM_EMPLOYEE_CARD_UPGRADE:
             case CollisionTags.ITEM_PIZZA:
 
                 UseItemInstantly(collider);
                 return;
 
-            case CollisionTags.ITEM_KEY:
             case CollisionTags.ITEM_SODA:
             case CollisionTags.ITEM_TISSUES:
             case CollisionTags.ITEM_CANDY:
@@ -291,6 +293,16 @@ public class Player : MonoBehaviour
         Exhaustion -= amount;
     }
 
+    
+    private void OnEmployeeCardUpgraded(EmployeeSecurityLevel level)
+    {
+        if (cardLevel < level)
+        {
+            cardLevel = level;
+
+            Debug.Log("Card upgraded to: " + cardLevel);
+        }
+    }
 
 
     #endregion
