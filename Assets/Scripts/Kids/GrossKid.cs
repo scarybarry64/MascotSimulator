@@ -42,6 +42,11 @@ public class GrossKid : Kid
 
     protected override void SetAIState(KidAIState state)
     {
+        if (IsAIState(state) || !gameObject.activeSelf)
+        {
+            return;
+        }
+
         base.SetAIState(state);
 
         if (IsAIState(KidAIState.HUNTING) && _coroutineBoogerAttackAI == null)

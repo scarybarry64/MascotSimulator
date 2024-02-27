@@ -267,6 +267,7 @@ public class Player : MonoBehaviour
 
     private void OnKidAttacking(KidType type, int damage, int strength)
     {
+        typeKidAttacking = type; // needs to happen before taking damage, game over screen dependent on this
         Exhaustion += damage;
 
         if (!_isBeingAttacked)
@@ -274,8 +275,6 @@ public class Player : MonoBehaviour
             StopMovement();
             _isBeingAttacked = true;
             _kidAttackStrength = strength;
-
-            typeKidAttacking = type;
 
             _escapeValue = 0;
             _escapeButton.SetActive(true);
