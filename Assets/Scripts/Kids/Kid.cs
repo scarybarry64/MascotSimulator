@@ -53,10 +53,11 @@ public class Kid : MonoBehaviour
 
     protected KidAIState _state = KidAIState.NULL;
     protected NavMeshAgent _agent;
+    protected CapsuleCollider2D _collider;
+    protected CircleCollider2D _colliderAIPlayerDetection;
     protected SpriteRenderer _renderer;
     protected Animator _animator;
 
-    protected CircleCollider2D colliderAIPlayerDetection;
     protected Vector2 _positionPlayerLastSeen;
     protected float _timeSinceLastAttack;
     protected Renderer _floor; // for wander behavior
@@ -74,6 +75,8 @@ public class Kid : MonoBehaviour
     protected virtual void Start()
     {
         _agent = GetComponent<NavMeshAgent>();
+        _collider = GetComponent<CapsuleCollider2D>();
+        _colliderAIPlayerDetection = transform.Find("AI Player Detection").GetComponent<CircleCollider2D>();
         _renderer = GetComponent<SpriteRenderer>();
         _animator = GetComponent<Animator>();
         _floor = GameObject.FindGameObjectWithTag("Floor").GetComponent<Renderer>(); // find floor here, might be bad for performance (should use singleton game manager instead)
@@ -85,7 +88,6 @@ public class Kid : MonoBehaviour
         _timeSinceLastAttack = 0f;
         _animator.speed = AnimationSpeed;
 
-        colliderAIPlayerDetection = transform.Find("AI Player Detection").GetComponent<CircleCollider2D>();
 
 
         Events.OnPlayerEscapingHug.Subscribe(OnPlayerEscapingHug);
@@ -119,7 +121,7 @@ public class Kid : MonoBehaviour
                 {
                     if (IsPlayerWithinLineOfSight())
                     {
-                        _positionPlayerLastSeen = GameManager.instance.Player.transform.position;
+                        _positionPlayerLastSeen = GameManager.Instance.Player.transform.position;
 
                         if (IsPlayerWithinMeleeRange() && !IsAIState(KidAIState.HUG_ATTACKING))
                         {
@@ -165,7 +167,7 @@ public class Kid : MonoBehaviour
     #region Actions
 
     // Move to specified position
-    private void MoveToDestination(Vector2 destination)
+    protected void MoveToDestination(Vector2 destination)
     {
         _agent.speed = RunSpeed;
         _agent.isStopped = false;
@@ -174,7 +176,7 @@ public class Kid : MonoBehaviour
     }
 
     // Picks a random point in the level, move towards it, returns it
-    private Vector2 MoveToRandomDestination()
+    protected Vector2 MoveToRandomDestination()
     {
         Vector2 destination = CalculateRandomLevelLocation();
         _agent.speed = RunSpeed;
@@ -185,7 +187,7 @@ public class Kid : MonoBehaviour
         return destination;
     }
 
-    private void StopMovement()
+    protected void StopMovement()
     {
         _agent.speed = 0f;
         _agent.isStopped = true;
@@ -289,13 +291,13 @@ public class Kid : MonoBehaviour
     // Pursue player
     protected virtual IEnumerator HuntingAICoroutine()
     {
-        MoveToDestination(GameManager.instance.Player.transform.position);
+        MoveToDestination(GameManager.Instance.Player.transform.position);
 
         while (IsAIState(KidAIState.HUNTING))
         {
             yield return new WaitForFixedUpdate();
 
-            _agent.SetDestination(GameManager.instance.Player.transform.position);
+            _agent.SetDestination(GameManager.Instance.Player.transform.position);
         }
 
         _coroutineHuntingAI = null;
@@ -350,6 +352,7 @@ public class Kid : MonoBehaviour
         SetAIState(KidAIState.SEARCHING);
     }
 
+
     protected virtual void StopAllAICoroutines()
     {
         if (_coroutineIdleAI != null)
@@ -397,27 +400,27 @@ public class Kid : MonoBehaviour
     // Does a simple line cast to player, blocked by walls
     protected bool IsPlayerWithinLineOfSight()
     {
-        Debug.DrawLine(transform.position, GameManager.instance.Player.transform.position, Color.magenta);
+        Debug.DrawLine(transform.position, GameManager.Instance.Player.transform.position, Color.magenta);
 
-        return !Physics2D.Linecast(transform.position, GameManager.instance.Player.transform.position, _maskBlockable);
+        return !Physics2D.Linecast(transform.position, GameManager.Instance.Player.transform.position, _maskBlockable);
     }
 
     // Player is inside the bounds of the AI Player Detection circle
     private bool IsPlayerWithinDetectionRange()
     {
-        return Vector2.Distance(transform.position, GameManager.instance.Player.transform.position) <= colliderAIPlayerDetection.radius;
+        return Vector2.Distance(transform.position, GameManager.Instance.Player.transform.position) <= _colliderAIPlayerDetection.radius;
     }
 
     // combine this with InCloseRangeToPlayer? (get player distance level or something)
     protected bool IsPlayerWithinMeleeRange()
     {
-        return Vector2.Distance(transform.position, GameManager.instance.Player.transform.position) <= 1f;
+        return Vector2.Distance(transform.position, GameManager.Instance.Player.transform.position) <= 1f;
     }
 
     // idk, like between detection and melee distances
     protected bool IsPlayerWithinMediumRange()
     {
-        return Vector2.Distance(transform.position, GameManager.instance.Player.transform.position) <= 4f;
+        return Vector2.Distance(transform.position, GameManager.Instance.Player.transform.position) <= 4f;
     }
 
     #endregion

@@ -21,4 +21,31 @@ public class WeirdKid : Kid
 
         Debug.Log("Weird Kid subclass Start is called");
     }
+
+
+    // always follow player
+    protected override void OnTriggerStay2D(Collider2D collider)
+    {
+        switch (collider.tag)
+        {
+            case CollisionTags.PLAYER:
+
+                if (_state != KidAIState.STUNNED)
+                {
+                    _positionPlayerLastSeen = GameManager.Instance.Player.transform.position;
+
+                    if (IsPlayerWithinMeleeRange() && !IsAIState(KidAIState.HUG_ATTACKING))
+                    {
+                        SetAIState(KidAIState.HUG_ATTACKING);
+                    }
+                    else if (!IsPlayerWithinMeleeRange())
+                    {
+                        SetAIState(KidAIState.HUNTING);
+                    }
+                }
+                return;
+        }
+    }
+
+
 }

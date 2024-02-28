@@ -51,10 +51,12 @@ public class Player : MonoBehaviour
     private KidType typeKidAttacking = KidType.BASE;
 
 
-    //private LinkedList<Item> inventory = new();
-
-
     private EmployeeSecurityLevel cardLevel = EmployeeSecurityLevel.NONE;
+
+
+    public Item ItemHeld { get; private set; }
+
+
 
 
     private void Start()
@@ -81,6 +83,7 @@ public class Player : MonoBehaviour
         _input.Player.Move.canceled += OnMovementCancelled;
         _input.Player.Action.performed += OnActionPressed;
 
+        ItemHeld = null;
 
         Events.OnKidAttacking.Subscribe(OnKidAttacking);
         Events.OnEmployeeCardUpgraded.Subscribe(OnEmployeeCardUpgraded);
@@ -104,6 +107,21 @@ public class Player : MonoBehaviour
     private void Update()
     {
         _sliderExhaustionBar.value = Exhaustion;
+
+
+        //Vector3 positionMouseScreen = Mouse.current.position.ReadValue();
+
+
+        //positionMouseScreen.z = 1;
+
+        //Vector3 positionMouseWorld = Camera.main.ScreenToWorldPoint(positionMouseScreen);
+
+
+        //Debug.DrawRay(positionMouseWorld, Vector2.left * 0.1f, Color.red);
+
+        //Debug.Log("Pos: " + positionMouseWorld);
+        //Debug.Log("Player: " + transform.position);
+
     }
 
 
@@ -128,43 +146,10 @@ public class Player : MonoBehaviour
 
             case CollisionTags.DOOR_EXIT:
 
-                GameManager.instance.WinGame();
+                GameManager.Instance.WinGame();
                 return;
         }
     }
-
-
-
-    #region Input Listeners
-
-    private void OnMovementPressed(InputAction.CallbackContext data)
-    {
-        if (!_isBeingAttacked)
-        {
-            Move(data.ReadValue<Vector2>());
-        }
-    }
-
-
-    private void OnMovementCancelled(InputAction.CallbackContext ignore)
-    {
-        StopMovement();
-    }
-
-    private void OnActionPressed(InputAction.CallbackContext ignore)
-    {
-        if (_isBeingAttacked)
-        {
-            EscapeHug();
-        }
-        else if (_dialogue_manager.IsDialogueOpen())
-        {
-            _dialogue_manager.NextDialogue();
-        }
-    }
-
-    #endregion
-
 
     #region Primary Actions
 
@@ -215,33 +200,32 @@ public class Player : MonoBehaviour
 
 
 
-    //private void bool AddItemToInventory(Item item)
-    //{
-    //    //
-    //}
-
-
-
     private void PickupItem(Collider2D colliderItem)
     {
-        // adds item to inventory, destory ingame prefab
 
 
+
+
+
+        ItemHeld = colliderItem.GetComponent<Item>();
+        colliderItem.gameObject.SetActive(false);
+        colliderItem.transform.SetParent(transform);
+        colliderItem.transform.position = transform.position;
 
 
     }
 
 
-    private void UseItem()
+    private void UseHeldItem()
     {
-        // finds item in inventory, uses item, removes from inventory
-
-        // alternatively, use withou
-
-
+        if (ItemHeld != null)
+        {
+            ItemHeld.Use();
+            ItemHeld = null;
+        }
     }
 
-    
+
     private void UseItemInstantly(Collider2D colliderItem)
     {
         // use and destory without inventory management
@@ -256,17 +240,53 @@ public class Player : MonoBehaviour
     // game over screen determined by type of kid that kills player
     private void Die()
     {
-        GameManager.instance.DoGameOver(typeKidAttacking);
+        GameManager.Instance.DoGameOver(typeKidAttacking);
     }
 
     #endregion
 
+
+    #region Input Listeners
+
+    private void OnMovementPressed(InputAction.CallbackContext data)
+    {
+        if (!_isBeingAttacked)
+        {
+            Move(data.ReadValue<Vector2>());
+        }
+    }
+
+
+    private void OnMovementCancelled(InputAction.CallbackContext ignore)
+    {
+        StopMovement();
+    }
+
+    // clean this up somehow
+    private void OnActionPressed(InputAction.CallbackContext ignore)
+    {
+        if (_isBeingAttacked)
+        {
+            EscapeHug();
+        }
+        else if (!_dialogue_manager.IsDialogueOpen())
+        {
+            UseHeldItem();
+        }
+        else
+        {
+            _dialogue_manager.NextDialogue();
+        }
+    }
+
+    #endregion
 
 
     #region Event Listeners
 
     private void OnKidAttacking(KidType type, int damage, int strength)
     {
+        typeKidAttacking = type; // needs to happen before taking damage, game over screen dependent on this
         Exhaustion += damage;
 
         if (!_isBeingAttacked)
@@ -274,8 +294,6 @@ public class Player : MonoBehaviour
             StopMovement();
             _isBeingAttacked = true;
             _kidAttackStrength = strength;
-
-            typeKidAttacking = type;
 
             _escapeValue = 0;
             _escapeButton.SetActive(true);

@@ -5,10 +5,8 @@ using UnityEngine;
 public class GrossKid : Kid
 {
     public const int BOOGER_DAMAGE = BASE_HUG_DAMAGE * 4/3;
-    public const float BOOGER_SPEED = 10f;
+    public const float BOOGER_SPEED = 7.5f;
     public const float BOOGER_DURATION = 5f;
-
-    private DeadlyBoogers _boogers;
 
     private Coroutine _coroutineBoogerAttackAI; // not its own KidAIState, since it happens while in Hunting state
 
@@ -20,8 +18,6 @@ public class GrossKid : Kid
         type = KidType.GROSS;
 
         AttackSpeed = BASE_ATTACK_SPEED / 3f;
-
-        _boogers = Resources.Load<DeadlyBoogers>("DeadlyBoogers");
     }
 
 
@@ -42,6 +38,11 @@ public class GrossKid : Kid
 
     protected override void SetAIState(KidAIState state)
     {
+        if (IsAIState(state) || !gameObject.activeSelf)
+        {
+            return;
+        }
+
         base.SetAIState(state);
 
         if (IsAIState(KidAIState.HUNTING) && _coroutineBoogerAttackAI == null)
@@ -90,8 +91,14 @@ public class GrossKid : Kid
 
     private void BoogerAttack()
     {
-        DeadlyBoogers boogers = Instantiate(_boogers, transform.position, Quaternion.identity);
-        boogers.Direction = (_positionPlayerLastSeen - (Vector2)transform.position).normalized;
+        //DeadlyBoogersProjectile boogers = Instantiate(_boogers, transform.position, Quaternion.identity);
+        //boogers.Direction = (_positionPlayerLastSeen - (Vector2)transform.position).normalized;
+
+
+        Vector2 direction = (_positionPlayerLastSeen - (Vector2)transform.position).normalized;
+
+
+        GameManager.Instance.Projectiles.SpawnProjectile(ProjectileType.DEADLY_BOOGERS, null, transform.position, BOOGER_SPEED, direction);
     }
 
     #endregion

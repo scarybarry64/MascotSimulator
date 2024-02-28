@@ -10,6 +10,10 @@ public static class CollisionTags
     public const string ITEM_CANDY = "CandyItem"; // distracts candy girl
     public const string ITEM_SODA = "SodaItem"; // gives temp speed buff
 
+    //// Projectiles
+    //public const string PROJECTILE_TISSUES = "TissuesProjectile";
+    //public const string PROJECTILE_DEADLY_BOOGERS = "DeadlyBoogersProjectile";
+
     // Triggers
     public const string DOOR_EXIT = "ExitDoor";
     public const string PRINCESS_COMMAND_ZONE = "PrincessCommandZone";
