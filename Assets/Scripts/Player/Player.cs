@@ -168,7 +168,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void StopMovement()
+    public void StopMovement()
     {
         _body.velocity = Vector2.zero;
         _animator.SetBool("isMoving", false);
@@ -250,7 +250,7 @@ public class Player : MonoBehaviour
 
     private void OnMovementPressed(InputAction.CallbackContext data)
     {
-        if (!_isBeingAttacked)
+        if (!_isBeingAttacked && _dialogue_manager.IsDialogueFinished())
         {
             Move(data.ReadValue<Vector2>());
         }

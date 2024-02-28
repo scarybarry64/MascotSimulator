@@ -868,7 +868,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!4 &368977648
@@ -4002,12 +4002,12 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
       - m_Target: {fileID: 1175778539}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: Stop
-        m_Mode: 0
+        m_TargetAssemblyTypeName: Player, Assembly-CSharp
+        m_MethodName: StopMovement
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -5418,9 +5418,25 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 6104016311246775073, guid: 7cb375faba8a7c34d87cf8783c627b6e, type: 3}
+      propertyPath: onTriggerEnter.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6104016311246775073, guid: 7cb375faba8a7c34d87cf8783c627b6e, type: 3}
       propertyPath: onTriggerEnter.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
       objectReference: {fileID: 1175778539}
+    - target: {fileID: 6104016311246775073, guid: 7cb375faba8a7c34d87cf8783c627b6e, type: 3}
+      propertyPath: onTriggerEnter.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: StopMovement
+      objectReference: {fileID: 0}
+    - target: {fileID: 6104016311246775073, guid: 7cb375faba8a7c34d87cf8783c627b6e, type: 3}
+      propertyPath: onTriggerEnter.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: Player, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 6104016311246775073, guid: 7cb375faba8a7c34d87cf8783c627b6e, type: 3}
+      propertyPath: onTriggerEnter.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 8131348385601731120, guid: 7cb375faba8a7c34d87cf8783c627b6e, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.23
