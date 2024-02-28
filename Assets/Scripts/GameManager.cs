@@ -12,10 +12,10 @@ public class GameManager : MonoBehaviour
 
     public static GameManager instance {  get; private set; }
     public Player Player { get; private set; }
-
     public KidType KillerType {  get; private set; }
 
-
+    public static LevelConnection StartLevelConnection { get; private set;  }
+    public static LevelConnection LevelConnection { get; private set; }
     private void Awake()
     {
         if (instance != null && instance != this)
@@ -26,7 +26,7 @@ public class GameManager : MonoBehaviour
         {
             instance = this;
         }
-
+        LevelConnection = Instantiate(StartLevelConnection);
         Player = FindAnyObjectByType<Player>();
     }
 
