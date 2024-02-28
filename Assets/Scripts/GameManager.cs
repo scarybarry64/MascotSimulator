@@ -23,7 +23,7 @@ public class GameManager : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            instance.Player = FindAnyObjectByType<Player>();
+            Instance.Player = FindAnyObjectByType<Player>();
             Destroy(this);
             return;
         }
@@ -32,7 +32,7 @@ public class GameManager : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(this);
         }
-
+        LevelConnection._entrance_name = "";
         Player = FindAnyObjectByType<Player>();
         Instance.Player = Player;
         Projectiles = FindAnyObjectByType<ProjectileManager>();
