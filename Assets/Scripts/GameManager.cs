@@ -12,22 +12,31 @@ public class GameManager : MonoBehaviour
 
     public static GameManager instance {  get; private set; }
     public Player Player { get; private set; }
+    
     public KidType KillerType {  get; private set; }
 
     public static LevelConnection StartLevelConnection { get; private set;  }
     public static LevelConnection LevelConnection { get; private set; }
     private void Awake()
     {
+
         if (instance != null && instance != this)
         {
+            instance.Player = FindAnyObjectByType<Player>();
             Destroy(this);
+            return;
         }
         else
         {
             instance = this;
+            DontDestroyOnLoad(this);
         }
-        LevelConnection = Instantiate(StartLevelConnection);
-        Player = FindAnyObjectByType<Player>();
+
+        Debug.Log("Ayayaya");
+
+        instance.Player = FindAnyObjectByType<Player>();
+        LevelConnection._entrance_name = "";
+        //LevelConnection = Instantiate(StartLevelConnection);
     }
 
     public void StartGame()
