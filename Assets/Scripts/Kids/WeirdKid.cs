@@ -32,7 +32,7 @@ public class WeirdKid : Kid
 
                 if (_state != KidAIState.STUNNED)
                 {
-                    _positionPlayerLastSeen = GameManager.instance.Player.transform.position;
+                    _positionPlayerLastSeen = GameManager.Instance.Player.transform.position;
 
                     if (IsPlayerWithinMeleeRange() && !IsAIState(KidAIState.HUG_ATTACKING))
                     {

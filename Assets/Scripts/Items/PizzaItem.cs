@@ -9,10 +9,8 @@ public class PizzaItem : Item
 
     public override void Use()
     {
-        Debug.Log("Replenishing health");
-
-
         Events.OnHealthReplenished.Invoke(PIZZA_HEALTH_AMOUNT);
+        Destroy(gameObject);
     }
 
 

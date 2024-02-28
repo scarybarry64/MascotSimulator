@@ -121,7 +121,7 @@ public class Kid : MonoBehaviour
                 {
                     if (IsPlayerWithinLineOfSight())
                     {
-                        _positionPlayerLastSeen = GameManager.instance.Player.transform.position;
+                        _positionPlayerLastSeen = GameManager.Instance.Player.transform.position;
 
                         if (IsPlayerWithinMeleeRange() && !IsAIState(KidAIState.HUG_ATTACKING))
                         {
@@ -291,13 +291,13 @@ public class Kid : MonoBehaviour
     // Pursue player
     protected virtual IEnumerator HuntingAICoroutine()
     {
-        MoveToDestination(GameManager.instance.Player.transform.position);
+        MoveToDestination(GameManager.Instance.Player.transform.position);
 
         while (IsAIState(KidAIState.HUNTING))
         {
             yield return new WaitForFixedUpdate();
 
-            _agent.SetDestination(GameManager.instance.Player.transform.position);
+            _agent.SetDestination(GameManager.Instance.Player.transform.position);
         }
 
         _coroutineHuntingAI = null;
@@ -400,27 +400,27 @@ public class Kid : MonoBehaviour
     // Does a simple line cast to player, blocked by walls
     protected bool IsPlayerWithinLineOfSight()
     {
-        Debug.DrawLine(transform.position, GameManager.instance.Player.transform.position, Color.magenta);
+        Debug.DrawLine(transform.position, GameManager.Instance.Player.transform.position, Color.magenta);
 
-        return !Physics2D.Linecast(transform.position, GameManager.instance.Player.transform.position, _maskBlockable);
+        return !Physics2D.Linecast(transform.position, GameManager.Instance.Player.transform.position, _maskBlockable);
     }
 
     // Player is inside the bounds of the AI Player Detection circle
     private bool IsPlayerWithinDetectionRange()
     {
-        return Vector2.Distance(transform.position, GameManager.instance.Player.transform.position) <= _colliderAIPlayerDetection.radius;
+        return Vector2.Distance(transform.position, GameManager.Instance.Player.transform.position) <= _colliderAIPlayerDetection.radius;
     }
 
     // combine this with InCloseRangeToPlayer? (get player distance level or something)
     protected bool IsPlayerWithinMeleeRange()
     {
-        return Vector2.Distance(transform.position, GameManager.instance.Player.transform.position) <= 1f;
+        return Vector2.Distance(transform.position, GameManager.Instance.Player.transform.position) <= 1f;
     }
 
     // idk, like between detection and melee distances
     protected bool IsPlayerWithinMediumRange()
     {
-        return Vector2.Distance(transform.position, GameManager.instance.Player.transform.position) <= 4f;
+        return Vector2.Distance(transform.position, GameManager.Instance.Player.transform.position) <= 4f;
     }
 
     #endregion

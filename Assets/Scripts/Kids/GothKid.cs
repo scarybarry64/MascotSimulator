@@ -80,13 +80,13 @@ public class GothKid : Kid
 
     protected override IEnumerator HuntingAICoroutine()
     {
-        MoveToDestination(GameManager.instance.Player.transform.position);
+        MoveToDestination(GameManager.Instance.Player.transform.position);
 
         while (!IsPlayerWithinMeleeRange())
         {
             yield return new WaitForFixedUpdate();
 
-            _agent.SetDestination(GameManager.instance.Player.transform.position);
+            _agent.SetDestination(GameManager.Instance.Player.transform.position);
         }
 
         _coroutineHuntingAI = null;
@@ -109,7 +109,7 @@ public class GothKid : Kid
             yield return null;
 
             positionTeleport = CalculateRandomLevelLocation();
-            if (Vector2.Distance(positionTeleport, GameManager.instance.Player.transform.position) >= GOTH_KID_MIN_TELEPORT_DISTANCE)
+            if (Vector2.Distance(positionTeleport, GameManager.Instance.Player.transform.position) >= GOTH_KID_MIN_TELEPORT_DISTANCE)
             {
                 break;
             }

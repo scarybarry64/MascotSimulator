@@ -18,6 +18,7 @@ public class EmployeeCardUpgradeItem : Item
     public override void Use()
     {
         Events.OnEmployeeCardUpgraded.Invoke(_cardLevel);
+        Destroy(gameObject);
     }
 
 }

@@ -93,8 +93,8 @@ public class SugarKid : Kid
         {
             Debug.Log("Goodbye player");
             
-            x = GameManager.instance.Player.transform.position.x;
-            y = GameManager.instance.Player.transform.position.y;
+            x = GameManager.Instance.Player.transform.position.x;
+            y = GameManager.Instance.Player.transform.position.y;
         }
         
         return new Vector2(x, y);

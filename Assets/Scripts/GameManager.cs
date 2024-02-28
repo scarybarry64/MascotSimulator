@@ -10,24 +10,26 @@ public class GameManager : MonoBehaviour
     public const float KID_STUN_DURATION = 5f;
 
 
-    public static GameManager instance {  get; private set; }
+    public static GameManager Instance {  get; private set; }
     public Player Player { get; private set; }
+    public ProjectileManager Projectiles { get; private set; }
 
-    public KidType KillerType {  get; private set; }
+    public KidType DeathType {  get; private set; }
 
 
     private void Awake()
     {
-        if (instance != null && instance != this)
+        if (Instance != null && Instance != this)
         {
             Destroy(this);
         }
         else
         {
-            instance = this;
+            Instance = this;
         }
 
         Player = FindAnyObjectByType<Player>();
+        Projectiles = FindAnyObjectByType<ProjectileManager>();
     }
 
     public void StartGame()
@@ -49,7 +51,9 @@ public class GameManager : MonoBehaviour
 
     public void DoGameOver(KidType type)
     {
-        KillerType = type;
+        DeathType = type;
         SceneManager.LoadScene("GameOverScene");
     }
+
+
 }
