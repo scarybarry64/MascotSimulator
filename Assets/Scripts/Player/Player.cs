@@ -31,7 +31,8 @@ public class Player : MonoBehaviour
             }
         }
     }
-
+    private AudioSource _sound_manager;
+    [SerializeField] private AudioClip _sound_pain;
     private PlayerInput _input;
     private Rigidbody2D _body;
     private SpriteRenderer _renderer;
@@ -61,6 +62,9 @@ public class Player : MonoBehaviour
 
     private void Start()
     {
+        _sound_manager = gameObject.AddComponent<AudioSource>() as AudioSource;
+        if (_sound_pain != null)
+            _sound_manager.clip = _sound_pain;
         _input = new PlayerInput();
         _body = GetComponent<Rigidbody2D>();
         _renderer = GetComponent<SpriteRenderer>();
@@ -286,6 +290,7 @@ public class Player : MonoBehaviour
 
     private void OnKidAttacking(KidType type, int damage, int strength)
     {
+        _sound_manager.Play();
         typeKidAttacking = type; // needs to happen before taking damage, game over screen dependent on this
         Exhaustion += damage;
 

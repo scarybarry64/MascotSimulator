@@ -5,7 +5,7 @@ using UnityEngine;
 public class GrossKid : Kid
 {
     public const int BOOGER_DAMAGE = BASE_HUG_DAMAGE * 4/3;
-    public const float BOOGER_SPEED = 7.5f;
+    public const float BOOGER_SPEED = 10f;//7.5
     public const float BOOGER_DURATION = 5f;
 
     private Coroutine _coroutineBoogerAttackAI; // not its own KidAIState, since it happens while in Hunting state
@@ -94,7 +94,7 @@ public class GrossKid : Kid
         //DeadlyBoogersProjectile boogers = Instantiate(_boogers, transform.position, Quaternion.identity);
         //boogers.Direction = (_positionPlayerLastSeen - (Vector2)transform.position).normalized;
 
-
+        AttackSound();
         Vector2 direction = (_positionPlayerLastSeen - (Vector2)transform.position).normalized;
 
 

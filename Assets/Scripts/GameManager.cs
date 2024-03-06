@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEditor;
 
 
 public class GameManager : MonoBehaviour
@@ -50,8 +51,9 @@ public class GameManager : MonoBehaviour
 
     public void QuitGame()
     {
+        Debug.Log("Quitting...");
+        EditorApplication.isPlaying = false;
         Application.Quit();
-
         //Application.ExternalEval("window.open('about:blank','_self')");
     }
 

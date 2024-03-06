@@ -71,9 +71,12 @@ public class Kid : MonoBehaviour
     protected Coroutine _coroutineHuntingAI;
     protected Coroutine _coroutineHugAttackAI;
     protected Coroutine _coroutineStunnedAI;
+    protected AudioSource _sound_manager;
+    [SerializeField] protected AudioClip _sound_attack;
 
     protected virtual void Start()
     {
+        _sound_manager = gameObject.AddComponent<AudioSource>() as AudioSource;
         _agent = GetComponent<NavMeshAgent>();
         _collider = GetComponent<CapsuleCollider2D>();
         _colliderAIPlayerDetection = transform.Find("AI Player Detection").GetComponent<CircleCollider2D>();
@@ -201,7 +204,14 @@ public class Kid : MonoBehaviour
     }
 
     #endregion
-
+    protected void AttackSound()
+    {
+        if (_sound_attack != null)
+        {
+            _sound_manager.clip = _sound_attack;
+            _sound_manager.Play();
+        }
+    }
 
     #region AI State Machine
 
