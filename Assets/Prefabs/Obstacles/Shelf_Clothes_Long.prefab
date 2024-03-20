@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 5210981673731820002}
   - component: {fileID: 1532952492205656334}
   - component: {fileID: 3667759345858503702}
+  - component: {fileID: -5411978267846312170}
   m_Layer: 0
   m_Name: Shelf_Clothes_Long
   m_TagString: Untagged
@@ -130,3 +131,19 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 7.41, y: 3.19}
   m_EdgeRadius: 0
+--- !u!114 &-5411978267846312170
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5381469482714792101}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9809bf1345abc5648af68b3a82653f08, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_OverrideArea: 1
+  m_Area: 1
+  m_IgnoreFromBuild: 0
+  m_AffectedAgents: ffffffff
